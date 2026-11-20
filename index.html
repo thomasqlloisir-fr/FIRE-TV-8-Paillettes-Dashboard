@@ -8,11 +8,15 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <title>Maison</title>
-<!-- Tableau de bord responsive : tablettes Android / Fire (paysage ou portrait) et smartphones Android. -->
+<!--
+  Tableau de bord responsive (tablettes Fire / Android, smartphones Android).
+  Onglets : Accueil · Mer · Santé · Musique. Données : Open-Meteo (gratuit, sans clé).
+-->
 <style>
   :root{
     --bg:#0f1420; --card:#1a2131; --card2:#232c40; --line:#2c3650;
     --txt:#eef2fa; --muted:#97a3bd; --accent:#4f9cff; --alexa:#31c4f3;
+    --good:#2fbf71; --fair:#a3c94a; --mod:#f2c94c; --poor:#f2994a; --bad:#e5484d; --vbad:#9b51e0;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
   html,body{height:100%;background:var(--bg);color:var(--txt);
@@ -20,26 +24,31 @@
   body{padding:12px 14px;padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
   button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 
-  .app{height:100%;display:grid;gap:12px;grid-template-columns:1.05fr 1fr;grid-template-rows:auto 1fr;
-    grid-template-areas:"head head" "weather side"}
-  .side{grid-area:side;display:grid;gap:12px;grid-template-rows:auto 1fr;min-height:0}
-  @media (orientation:portrait){
-    .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;grid-template-areas:"head" "weather" "side"}
-  }
+  .app{height:100%;display:grid;gap:12px;grid-template-rows:auto 1fr}
+  .page{display:none;min-height:0;gap:12px;grid-template-columns:1.05fr 1fr}
+  .page.active{display:grid}
+  .col{display:grid;gap:12px;min-height:0;grid-auto-rows:minmax(0,auto)}
   .card{background:var(--card);border-radius:16px;padding:12px 14px;border:1px solid var(--line);min-height:0;overflow:hidden}
   h2{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
-    display:flex;justify-content:space-between;align-items:center}
+    display:flex;justify-content:space-between;align-items:center;gap:8px}
   h2 small{text-transform:none;letter-spacing:0;font-weight:400;font-size:12px}
+  .sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 6px}
+  .note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:8px}
+  .err{color:var(--bad);font-size:14px;line-height:1.4}
+  .empty{color:var(--muted);font-size:14px;line-height:1.5}
 
-  header{grid-area:head;display:flex;justify-content:space-between;align-items:center;padding:0 4px}
+  /* En-tête + onglets */
+  header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:0 4px}
   .clock{font-size:40px;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
   .date{font-size:15px;color:var(--muted);margin-top:3px;text-transform:capitalize}
+  .tabs{justify-self:center;display:flex;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
+  .tab{padding:9px 14px;border-radius:10px;font-size:15px;font-weight:600;color:var(--muted);white-space:nowrap}
+  .tab.active{background:var(--accent);color:#fff}
   .hd-right{display:flex;align-items:center;gap:8px}
-  .hello{font-size:16px;color:var(--muted);margin-right:4px}
   .icon-btn{width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:19px}
 
   /* Météo */
-  .weather{grid-area:weather;display:flex;flex-direction:column;justify-content:space-between}
+  .weather{display:flex;flex-direction:column;justify-content:space-between}
   .now{display:flex;align-items:center;gap:14px}
   .now .big{font-size:56px;line-height:1}
   .now .temp{font-size:48px;font-weight:300;line-height:1}
@@ -47,7 +56,6 @@
   .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .meta span{background:var(--card2);border-radius:9px;padding:5px 9px;font-size:13px;color:var(--muted)}
   .meta b{color:var(--txt);font-weight:600}
-  .sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 6px}
   .hours{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
   .hours::-webkit-scrollbar{display:none}
   .h{flex:0 0 auto;width:54px;text-align:center;background:var(--card2);border-radius:10px;padding:8px 2px;font-size:14px}
@@ -55,15 +63,13 @@
   .h .p{color:var(--accent);font-size:11px;height:13px;margin-top:2px}
   .days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
   .d{background:var(--card2);border-radius:10px;padding:8px 2px;text-align:center;font-size:14px}
-  .d .n{color:var(--muted);text-transform:capitalize}
+  .d .n{color:var(--muted)}
   .d .e{font-size:26px;margin:4px 0}
   .d .mm span{color:var(--muted)}
-  .err{color:#e5484d;font-size:14px;line-height:1.4}
-  .empty{color:var(--muted);font-size:14px;line-height:1.5}
 
   /* Tuiles */
   .apps{display:grid;gap:10px;grid-template-columns:1fr 1fr}
-  .tile{border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:12px;text-align:left;color:#fff;height:80px}
+  .tile{border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:12px;text-align:left;color:#fff;min-height:76px}
   .tile:active{opacity:.75}
   .tile .ic{font-size:32px;line-height:1}
   .tile .t{font-size:18px;font-weight:700;line-height:1.15}
@@ -74,77 +80,59 @@
   .tapo{background:linear-gradient(135deg,#1b5e20,#4caf50)}
   .mi{background:linear-gradient(135deg,#b33c00,#ff6900)}
 
-  /* Commandes vocales */
-  .voice{display:flex;flex-direction:column}
-  .voice-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;overflow-y:auto;flex:1;align-content:start}
-  .vc{background:var(--card2);border-radius:12px;padding:10px 12px}
-  .vc .top{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;margin-bottom:6px}
-  .vc .top .pi{font-size:22px}
-  .vc .say{font-size:13px;color:var(--muted);line-height:1.5}
-  .vc .say span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .vc .say b{color:var(--alexa);font-weight:600}
+  /* En bref */
+  .brief{display:flex;flex-direction:column}
+  .brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;align-content:stretch}
+  .bi{background:var(--card2);border-radius:14px;padding:12px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:4px}
+  .bi:active{opacity:.75}
+  .bi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .bi .v{font-size:24px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .bi .s{font-size:13px;color:var(--muted)}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex:0 0 auto}
 
-  /* ---------- Téléphones (portrait) et petits écrans : la page défile ---------- */
-  @media (max-width:760px), (max-height:480px){
-    html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
-    .app{height:auto;grid-template-columns:1fr;grid-template-rows:auto;grid-template-areas:"head" "weather" "side"}
-    .side{grid-template-rows:auto auto}
-    .voice-list{overflow:visible}
-    .hours{-webkit-overflow-scrolling:touch}
-  }
-  /* Téléphone tenu en paysage : deux colonnes, mais la page défile */
-  @media (max-height:480px) and (min-width:700px){
-    .app{grid-template-columns:1.05fr 1fr;grid-template-areas:"head head" "weather side"}
-  }
-  @media (max-width:760px){
-    .clock{font-size:34px}
-    .date{font-size:14px}
-    .hello{display:none}
-    .icon-btn{width:40px;height:40px;font-size:18px}
-    .card{padding:12px}
-    .now .big{font-size:48px}
-    .now .temp{font-size:42px}
-    .meta span{font-size:12px;padding:5px 8px}
-    .h{width:50px;font-size:13px}
-    .d{font-size:13px}
-    .d .e{font-size:22px}
-    .tile{height:auto;min-height:76px;padding:10px 12px;gap:10px}
-    .tile .ic{font-size:28px}
-    .tile .t{font-size:16px}
-    .voice-list{grid-template-columns:1fr}
-    .row{grid-template-columns:44px 1fr 1fr 36px}
-  }
-  @media (max-width:360px){
-    .apps{grid-template-columns:1fr}
-  }
+  /* Mer */
+  .bigstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .st{background:var(--card2);border-radius:12px;padding:12px 8px;text-align:center}
+  .st .v{font-size:30px;font-weight:300;line-height:1.1}
+  .st .v small{font-size:15px}
+  .st .l{font-size:12px;color:var(--muted);margin-top:4px}
+  .arrow{display:inline-block;font-size:18px;color:var(--alexa)}
+  .tides{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .td{background:var(--card2);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;font-size:15px}
+  .td .k{color:var(--muted);font-size:13px}
+  .td b{font-size:20px;font-weight:600}
+  svg.curve{width:100%;height:auto;display:block;margin-top:6px}
 
-  /* ---------- Grandes tablettes (ex. Galaxy Tab S5e en paysage) : tout en plus grand ---------- */
-  @media (min-width:1150px) and (min-height:740px){
-    body{padding:18px 22px}
-    .app,.side{gap:16px}
-    .clock{font-size:56px}
-    .date{font-size:18px}
-    .hello{font-size:20px}
-    .icon-btn{width:50px;height:50px;font-size:22px}
-    .card{padding:18px 20px;border-radius:20px}
-    h2,.sub{font-size:14px}
-    .now .big{font-size:84px}
-    .now .temp{font-size:70px}
-    .now .desc{font-size:18px}
-    .meta span{font-size:16px;padding:7px 12px}
-    .h{width:68px;font-size:17px;padding:12px 2px}
-    .h .e{font-size:30px}
-    .h .p{font-size:13px;height:16px}
-    .d{font-size:17px;padding:12px 2px}
-    .d .e{font-size:38px}
-    .tile{height:110px;padding:14px 20px;border-radius:18px}
-    .tile .ic{font-size:44px}
-    .tile .t{font-size:24px}
-    .tile .s{font-size:15px}
-    .vc{padding:14px 16px}
-    .vc .top{font-size:18px}
-    .vc .say{font-size:16px}
-  }
+  /* Santé */
+  .aqi{display:flex;align-items:center;gap:16px}
+  .aqi .ring{width:96px;height:96px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:7px solid}
+  .aqi .ring b{font-size:30px;font-weight:600;line-height:1}
+  .aqi .ring span{font-size:11px;color:var(--muted)}
+  .aqi .lbl{font-size:24px;font-weight:600}
+  .aqi .adv{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.4}
+  .pol{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  .pv{background:var(--card2);border-radius:12px;padding:10px 6px;text-align:center}
+  .pv b{display:block;font-size:20px;font-weight:600}
+  .pv span{font-size:11px;color:var(--muted)}
+  .pl{display:grid;gap:8px}
+  .pr{display:grid;grid-template-columns:110px 1fr 90px;align-items:center;gap:10px;font-size:15px}
+  .bar{height:10px;background:var(--card2);border-radius:6px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:6px}
+  .pr .lv{text-align:right;font-size:13px;color:var(--muted)}
+
+  /* Musique */
+  .cmds{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cmd{background:var(--card2);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.4;color:var(--muted)}
+  .cmd b{color:var(--alexa);font-weight:600}
+  .cmd .w{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+  .cmd q{color:var(--txt);quotes:"« " " »"}
+  .device{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+  .device .ic{font-size:44px}
+  .device .n{font-size:22px;font-weight:600}
+  .device .s{font-size:13px;color:var(--muted)}
+  .bigmusic{width:100%;min-height:110px;margin-top:4px}
+  .bigmusic .ic{font-size:44px}
+  .bigmusic .t{font-size:24px}
 
   /* Réglages */
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:14px}
@@ -155,15 +143,82 @@
   .sheet p.hint{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:6px}
   .sheet label{display:block;font-size:13px;color:var(--muted);margin:8px 0 4px}
   .sheet input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:15px}
-  .row{display:grid;grid-template-columns:56px 1fr 1fr 40px;gap:6px;align-items:center;margin-bottom:6px}
-  .row input{padding:9px 8px}
-  .del{background:rgba(229,72,77,.18);color:#e5484d;border-radius:10px;height:40px;font-size:17px}
   .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
   .btn{padding:12px 18px;border-radius:12px;background:var(--card2);font-weight:600;font-size:15px}
   .btn.primary{background:var(--accent);color:#fff}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(150px);background:var(--card2);border:1px solid var(--line);
     padding:12px 20px;border-radius:12px;font-size:15px;transition:transform .25s,opacity .25s;z-index:20;opacity:0;visibility:hidden}
   .toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
+
+  /* ---------- Tablette en portrait ---------- */
+  @media (orientation:portrait) and (min-width:761px){
+    .page{grid-template-columns:1fr;grid-auto-rows:minmax(0,auto)}
+  }
+  /* ---------- Téléphones et petits écrans : la page défile ---------- */
+  @media (max-width:760px), (max-height:480px){
+    html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+    .app{height:auto}
+    .page{grid-template-columns:1fr}
+    .brief-grid{min-height:0}
+  }
+  @media (max-height:480px) and (min-width:700px){
+    .page{grid-template-columns:1.05fr 1fr}
+  }
+  @media (max-width:760px){
+    header{grid-template-columns:1fr auto}
+    .tabs{grid-column:1 / -1;grid-row:2;justify-self:stretch}
+    .tab{flex:1;padding:9px 4px;font-size:14px}
+    .clock{font-size:34px}
+    .date{font-size:14px}
+    .icon-btn{width:40px;height:40px;font-size:18px}
+    .card{padding:12px}
+    .now .big{font-size:48px}
+    .now .temp{font-size:42px}
+    .meta span{font-size:12px;padding:5px 8px}
+    .h{width:50px;font-size:13px}
+    .d{font-size:13px}
+    .d .e{font-size:22px}
+    .tile{padding:10px 12px;gap:10px}
+    .tile .ic{font-size:28px}
+    .tile .t{font-size:16px}
+    .bi .v{font-size:20px}
+    .cmds{grid-template-columns:1fr}
+    .pr{grid-template-columns:90px 1fr 80px}
+    .st .v{font-size:26px}
+  }
+  @media (max-width:360px){ .apps{grid-template-columns:1fr} .tab .tl{display:none} }
+  /* Fire HD 8 : onglets compacts */
+  @media (max-width:1100px) and (min-width:761px){ .tab .tl{display:none} .tab{padding:9px 16px;font-size:18px} }
+
+  /* ---------- Grandes tablettes (Galaxy Tab S5e en paysage) ---------- */
+  @media (min-width:1150px) and (min-height:740px){
+    body{padding:18px 22px}
+    .app,.page,.col{gap:16px}
+    .clock{font-size:56px}
+    .date{font-size:18px}
+    .tab{font-size:17px;padding:11px 18px}
+    .icon-btn{width:50px;height:50px;font-size:22px}
+    .card{padding:18px 20px;border-radius:20px}
+    h2,.sub{font-size:14px}
+    .now .big{font-size:84px}
+    .now .temp{font-size:70px}
+    .now .desc{font-size:18px}
+    .meta span{font-size:16px;padding:7px 12px}
+    .h{width:68px;font-size:17px;padding:12px 2px}
+    .h .e{font-size:30px}
+    .d{font-size:17px;padding:12px 2px}
+    .d .e{font-size:38px}
+    .tile{min-height:104px;padding:14px 20px;border-radius:18px}
+    .tile .ic{font-size:44px}
+    .tile .t{font-size:24px}
+    .tile .s{font-size:15px}
+    .bi .v{font-size:32px}
+    .bi .l,.bi .s{font-size:15px}
+    .st .v{font-size:42px}
+    .st .l,.cmd{font-size:16px}
+    .td b{font-size:26px}
+    .pr{font-size:18px;grid-template-columns:140px 1fr 110px}
+  }
 </style>
 </head>
 <body>
@@ -173,59 +228,80 @@
       <div class="clock" id="clock">--:--</div>
       <div class="date" id="date"></div>
     </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="home">🏠<span class="tl"> Accueil</span></button>
+      <button class="tab" data-tab="sea">🌊<span class="tl"> Mer</span></button>
+      <button class="tab" data-tab="health">🌿<span class="tl"> Santé</span></button>
+      <button class="tab" data-tab="musicp">🎵<span class="tl"> Musique</span></button>
+    </nav>
     <div class="hd-right">
-      <div class="hello" id="hello"></div>
       <button class="icon-btn" id="fullscreen" title="Plein écran">⛶</button>
       <button class="icon-btn" id="refresh" title="Actualiser">↻</button>
       <button class="icon-btn" id="openSettings" title="Réglages">⚙︎</button>
     </div>
   </header>
 
-  <section class="card weather" id="weather">
-    <h2>Météo</h2>
-    <div class="empty">Chargement de la météo…</div>
-  </section>
+  <!-- ===== Accueil ===== -->
+  <main class="page active" id="p-home">
+    <section class="card weather" id="weather"><h2>Météo</h2><div class="empty">Chargement de la météo…</div></section>
+    <div class="col" style="grid-template-rows:auto 1fr">
+      <section class="apps">
+        <button class="tile music" data-app="music"><span class="ic">🎵</span>
+          <span><div class="t">Amazon Music</div><div class="s">Ouvrir la musique</div></span></button>
+        <button class="tile alexa" data-app="alexa"><span class="ic">💬</span>
+          <span><div class="t">Alexa</div><div class="s">Maison connectée</div></span></button>
+        <button class="tile tapo" data-app="tapo"><span class="ic">🔌</span>
+          <span><div class="t">Tapo</div><div class="s">Prises connectées</div></span></button>
+        <button class="tile mi" data-app="mi"><span class="ic">🏠</span>
+          <span><div class="t">Xiaomi Home</div><div class="s">Appareils Mi</div></span></button>
+      </section>
+      <section class="card brief">
+        <h2>En bref</h2>
+        <div class="brief-grid" id="brief"></div>
+      </section>
+    </div>
+  </main>
 
-  <div class="side">
-    <section class="apps">
-      <button class="tile music" data-app="music"><span class="ic">🎵</span>
-        <span><div class="t">Amazon Music</div><div class="s">Ouvrir la musique</div></span></button>
-      <button class="tile alexa" data-app="alexa"><span class="ic">💬</span>
-        <span><div class="t">Alexa</div><div class="s">Maison connectée</div></span></button>
-      <button class="tile tapo" data-app="tapo"><span class="ic">🔌</span>
-        <span><div class="t">Tapo</div><div class="s">Prises connectées</div></span></button>
-      <button class="tile mi" data-app="mi"><span class="ic">🏠</span>
-        <span><div class="t">Xiaomi Home</div><div class="s">Appareils Mi</div></span></button>
-    </section>
+  <!-- ===== Mer ===== -->
+  <main class="page" id="p-sea">
+    <section class="card" id="seaNow"><h2>Mer</h2><div class="empty">Chargement…</div></section>
+    <section class="card" id="seaTide"><h2>Marées</h2><div class="empty">Chargement…</div></section>
+  </main>
 
-    <section class="card voice" id="voiceCard">
-      <h2>Prises — commandes Alexa</h2>
-      <div class="voice-list" id="voiceList"></div>
-    </section>
-  </div>
+  <!-- ===== Santé ===== -->
+  <main class="page" id="p-health">
+    <section class="card" id="airCard"><h2>Qualité de l'air</h2><div class="empty">Chargement…</div></section>
+    <section class="card" id="pollenCard"><h2>Pollens</h2><div class="empty">Chargement…</div></section>
+  </main>
+
+  <!-- ===== Musique ===== -->
+  <main class="page" id="p-musicp">
+    <section class="card" id="musicMain"></section>
+    <section class="card" id="musicCmds"></section>
+  </main>
 </div>
 
 <div class="modal" id="modal">
   <div class="sheet">
     <h3>Réglages</h3>
-    <p class="hint">Enregistrés sur cette tablette uniquement.</p>
+    <p class="hint">Enregistrés sur cet appareil uniquement.</p>
 
-    <h4>Météo</h4>
+    <h4>Météo, mer et santé</h4>
     <label>Autre ville (laisser vide pour Malo-les-Bains, Dunkerque)</label>
     <input id="sCity" placeholder="ex. Lille">
 
+    <h4>Musique</h4>
+    <label>Nom de l'enceinte Alexa (tel qu'affiché dans l'app Alexa)</label>
+    <input id="sDevice" placeholder="ex. Salon Ouest">
+    <label>Vos radios et musiques favorites (séparées par des virgules)</label>
+    <input id="sFavs" placeholder="ex. Radio Classique, FIP, de la musique relaxante">
+
     <h4>Liens des applications</h4>
-    <p class="hint">Chaque tuile ouvre l'application installée sur l'appareil. Laissez un champ vide pour masquer la tuile.</p>
+    <p class="hint">Chaque tuile ouvre l'application installée. Laissez un champ vide pour masquer la tuile. Les tuiles s'affichent seulement sur les tablettes Fire (Silk) et dans Fully Kiosk : Chrome et Brave ne savent pas ouvrir ces applications.</p>
     <label>Amazon Music</label><input id="sMusic">
     <label>Alexa</label><input id="sAlexa">
     <label>Tapo</label><input id="sTapo">
     <label>Xiaomi Home</label><input id="sMi">
-
-    <h4>Prises</h4>
-    <p class="hint">Indiquez le nom de chaque prise tel qu'il apparaît dans l'app Alexa. Supprimez toutes les prises pour masquer ce bloc.</p>
-    <div class="row" style="color:var(--muted);font-size:12px"><span>Icône</span><span>Nom affiché</span><span>Nom dans Alexa</span><span></span></div>
-    <div id="sPlugs"></div>
-    <button class="btn" id="addPlug">＋ Ajouter une prise</button>
 
     <h4>Remettre à zéro</h4>
     <button class="btn" id="reset">Revenir aux réglages d'origine</button>
@@ -239,49 +315,77 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// Ouvre l'application Android installée (Fire OS, Android). Si elle est absente, Android propose sa page dans le store.
+/* ================= Configuration ================= */
+// Ouvre l'application Android installée (Fire OS, Android).
 function app(pkg){
   return 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=' + pkg + ';end';
 }
 const DEFAULTS = {
   city: '',
+  device: 'Salon Ouest',
+  favs: ['Radio Classique', 'de la musique classique', 'de la musique relaxante'],
   apps: {
     music: app('com.amazon.mp3'),
     alexa: app('com.amazon.dee.app'),
     tapo:  app('com.tplink.iot'),
     mi:    app('com.xiaomi.smarthome')
-  },
-  plugs: [
-    {icon:'⚡', name:'Prise P110', alexa:'la prise P110'},
-    {icon:'🔌', name:'Prise P100', alexa:'la prise P100'}
-  ]
+  }
 };
 const KEY = 'fire-dashboard-v1';
-const HOME = {lat:51.0530, lon:2.4040, name:'Malo-les-Bains · Dunkerque'};
+const HOME = {lat:51.0530, lon:2.4040, name:'Malo-les-Bains · Dunkerque', sea:{lat:51.075, lon:2.39}};
 let cfg = JSON.parse(JSON.stringify(DEFAULTS));
-try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) cfg = Object.assign(cfg, s, {apps:Object.assign({}, cfg.apps, s.apps)}); } catch (e) {}
+try {
+  const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (s) cfg = Object.assign(cfg, s, {apps:Object.assign({}, cfg.apps, s.apps)});
+} catch (e) {}
+delete cfg.plugs; // ancien bloc « prises », supprimé
 Object.keys(cfg.apps).forEach(k => { if (cfg.apps[k]) cfg.apps[k] = cfg.apps[k].replace(/;S\.browser_fallback_url=[^;]*/, ''); });
 const saveCfg = () => { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} };
+
+/* ================= Outils ================= */
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad = n => (n < 10 ? '0' : '') + n;
 const hm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
-
+const R = Math.round;
+const num = (v, d = 1) => v == null ? '–' : v.toFixed(d).replace('.', ',');
+const getJSON = url => fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200); }
+const DIRS = ['N','NE','E','SE','S','SO','O','NO'];
+const dirName = deg => deg == null ? '' : DIRS[Math.round(deg / 45) % 8];
+// flèche orientée vers où va le vent / la houle (direction météo = d'où il vient)
+const dirArrow = deg => deg == null ? '' : `<span class="arrow" style="transform:rotate(${deg + 180}deg)">↑</span>`;
 
-/* ---------- Horloge ---------- */
+/* ================= Onglets ================= */
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'p-' + name));
+  window.scrollTo(0, 0);
+}
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) showTab(b.dataset.tab); });
+
+/* ================= Horloge ================= */
 const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const JOURS_C = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
 const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 function tick(){
-  const d = new Date(), h = d.getHours();
+  const d = new Date();
   $('#clock').textContent = hm(d);
   $('#date').textContent = JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()];
-  $('#hello').textContent = h < 6 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
 }
 tick(); setInterval(tick, 5000);
 
-/* ---------- Météo (Open-Meteo, gratuit, sans clé) ---------- */
+/* ================= Lieu ================= */
+async function locate(){
+  const city = (cfg.city || '').trim();
+  if (!city) return HOME;
+  const j = await getJSON('https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&name=' + encodeURIComponent(city));
+  if (!j.results || !j.results.length) throw new Error('Ville introuvable : ' + city);
+  const g = j.results[0];
+  return {lat:g.latitude, lon:g.longitude, name:g.name, sea:{lat:g.latitude, lon:g.longitude}};
+}
+
+/* ================= Météo ================= */
 const WMO = {0:['☀️','Ensoleillé'],1:['🌤️','Plutôt ensoleillé'],2:['⛅','Partiellement nuageux'],3:['☁️','Couvert'],
   45:['🌫️','Brouillard'],48:['🌫️','Brouillard givrant'],51:['🌦️','Bruine légère'],53:['🌦️','Bruine'],55:['🌧️','Bruine forte'],
   56:['🌧️','Bruine verglaçante'],57:['🌧️','Bruine verglaçante'],61:['🌦️','Pluie faible'],63:['🌧️','Pluie'],65:['🌧️','Pluie forte'],
@@ -289,25 +393,18 @@ const WMO = {0:['☀️','Ensoleillé'],1:['🌤️','Plutôt ensoleillé'],2:['
   77:['🌨️','Grains de neige'],80:['🌦️','Averses'],81:['🌧️','Averses'],82:['⛈️','Fortes averses'],85:['🌨️','Averses de neige'],
   86:['❄️','Fortes averses de neige'],95:['⛈️','Orage'],96:['⛈️','Orage et grêle'],99:['⛈️','Orage violent']};
 function wmo(c, night){ const w = WMO[c] || ['❔','—']; return (night && c <= 1) ? ['🌙', c === 0 ? 'Dégagé' : w[1]] : w; }
-const getJSON = url => fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
 
-async function locate(){
-  const city = (cfg.city || '').trim();
-  if (!city) return HOME;
-  const j = await getJSON('https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&name=' + encodeURIComponent(city));
-  if (!j.results || !j.results.length) throw new Error('Ville introuvable : ' + city);
-  return {lat:j.results[0].latitude, lon:j.results[0].longitude, name:j.results[0].name};
-}
+const S = {}; // dernières données, pour le résumé « En bref »
 
-async function loadWeather(){
+async function loadWeather(loc){
   const box = $('#weather');
   try{
-    const loc = await locate();
     const w = await getJSON('https://api.open-meteo.com/v1/forecast?latitude=' + loc.lat + '&longitude=' + loc.lon +
-      '&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day' +
+      '&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day' +
       '&hourly=temperature_2m,weather_code,precipitation_probability,is_day' +
-      '&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max' +
       '&timezone=auto&timeformat=unixtime&forecast_days=6');
+    S.weather = w;
     const c = w.current, cur = wmo(c.weather_code, !c.is_day), H = w.hourly, D = w.daily;
     const now = Date.now() / 1000;
     let start = H.time.findIndex(t => t >= now - 3600); if (start < 0) start = 0;
@@ -316,19 +413,20 @@ async function loadWeather(){
       const p = H.precipitation_probability[k];
       hours += `<div class="h"><div>${k === start ? 'Maint.' : new Date(H.time[k]*1000).getHours() + 'h'}</div>
         <div class="e">${wmo(H.weather_code[k], !H.is_day[k])[0]}</div>
-        <div>${Math.round(H.temperature_2m[k])}°</div><div class="p">${p >= 20 ? p + '%' : ''}</div></div>`;
+        <div>${R(H.temperature_2m[k])}°</div><div class="p">${p >= 20 ? p + '%' : ''}</div></div>`;
     }
     let days = '';
     for (let j = 1; j <= 5 && j < D.time.length; j++){
       const dd = new Date((D.time[j] + 12*3600) * 1000);
       days += `<div class="d"><div class="n">${JOURS_C[dd.getDay()]}</div><div class="e">${wmo(D.weather_code[j])[0]}</div>
-        <div class="mm">${Math.round(D.temperature_2m_max[j])}° <span>${Math.round(D.temperature_2m_min[j])}°</span></div></div>`;
+        <div class="mm">${R(D.temperature_2m_max[j])}° <span>${R(D.temperature_2m_min[j])}°</span></div></div>`;
     }
     box.innerHTML = `<div><h2><span>${esc(loc.name)}</span><small>màj ${hm(new Date())}</small></h2>
       <div class="now"><div class="big">${cur[0]}</div>
-        <div><div class="temp">${Math.round(c.temperature_2m)}°</div><div class="desc">${cur[1]} · ressenti ${Math.round(c.apparent_temperature)}°</div></div></div>
-      <div class="meta"><span>↑ <b>${Math.round(D.temperature_2m_max[0])}°</b> ↓ <b>${Math.round(D.temperature_2m_min[0])}°</b></span>
-        <span>💧 <b>${c.relative_humidity_2m}%</b></span><span>💨 <b>${Math.round(c.wind_speed_10m)} km/h</b></span>
+        <div><div class="temp">${R(c.temperature_2m)}°</div><div class="desc">${cur[1]} · ressenti ${R(c.apparent_temperature)}°</div></div></div>
+      <div class="meta"><span>↑ <b>${R(D.temperature_2m_max[0])}°</b> ↓ <b>${R(D.temperature_2m_min[0])}°</b></span>
+        <span>💧 <b>${c.relative_humidity_2m}%</b></span>
+        <span>💨 <b>${R(c.wind_speed_10m)} km/h ${dirName(c.wind_direction_10m)}</b></span>
         <span>🌅 <b>${hm(new Date(D.sunrise[0]*1000))}</b> 🌇 <b>${hm(new Date(D.sunset[0]*1000))}</b></span></div></div>
       <div><div class="sub">Prochaines heures</div><div class="hours">${hours}</div></div>
       <div><div class="sub">5 prochains jours</div><div class="days">${days}</div></div>`;
@@ -336,66 +434,270 @@ async function loadWeather(){
     box.innerHTML = `<h2>Météo</h2><div class="err">Impossible de charger la météo : ${esc(e.message)}<br>Vérifiez le Wi-Fi puis touchez ↻.</div>`;
   }
 }
-loadWeather(); setInterval(loadWeather, 15 * 60000);
 
-/* ---------- Tuiles ---------- */
+/* ================= Mer + marées ================= */
+// Repère les pleines et basses mers dans la hauteur d'eau horaire (interpolation parabolique pour l'heure).
+function findTides(times, levels){
+  const out = [];
+  for (let i = 1; i < levels.length - 1; i++){
+    const a = levels[i-1], b = levels[i], c = levels[i+1];
+    if (a == null || b == null || c == null) continue;
+    const high = b > a && b >= c, low = b < a && b <= c;
+    if (!high && !low) continue;
+    const den = a - 2*b + c, off = den ? 0.5 * (a - c) / den : 0;
+    const lvl = b - 0.25 * (a - c) * off;
+    out.push({type: high ? 'high' : 'low', t: times[i] + off * 3600, h: lvl});
+  }
+  return out;
+}
+function tideCurve(times, levels, tides){
+  const now = Date.now() / 1000, t0 = now - 3*3600, t1 = now + 24*3600;
+  const pts = []; for (let i = 0; i < times.length; i++) if (times[i] >= t0 && times[i] <= t1 && levels[i] != null) pts.push([times[i], levels[i]]);
+  if (pts.length < 3) return '';
+  const W = 600, Hh = 150, padY = 22;
+  const lo = Math.min(...pts.map(p => p[1])), hi = Math.max(...pts.map(p => p[1]));
+  const X = t => (t - t0) / (t1 - t0) * W, Y = v => padY + (hi - v) / ((hi - lo) || 1) * (Hh - 2*padY);
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1)).join(' ');
+  const area = d + ` L ${X(pts[pts.length-1][0]).toFixed(1)} ${Hh} L ${X(pts[0][0]).toFixed(1)} ${Hh} Z`;
+  const marks = tides.filter(x => x.t >= t0 && x.t <= t1).map(x => {
+    const y = Y(x.h), ty = x.type === 'high' ? y - 7 : y + 16;
+    return `<circle cx="${X(x.t).toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#eef2fa"/>
+      <text x="${X(x.t).toFixed(1)}" y="${ty.toFixed(1)}" fill="#eef2fa" font-size="13" text-anchor="middle">${hm(new Date(x.t*1000))}</text>`;
+  }).join('');
+  const xn = X(now).toFixed(1);
+  return `<svg class="curve" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none">
+    <path d="${area}" fill="rgba(79,156,255,.18)"/><path d="${d}" fill="none" stroke="#4f9cff" stroke-width="2.5"/>
+    <line x1="${xn}" x2="${xn}" y1="0" y2="${Hh}" stroke="#f2c94c" stroke-width="2" stroke-dasharray="4 4"/>
+    <text x="${+xn + 6}" y="${Hh - 6}" fill="#f2c94c" font-size="12">maintenant</text>${marks}</svg>`;
+}
+
+async function loadSea(loc){
+  try{
+    const m = await getJSON('https://marine-api.open-meteo.com/v1/marine?latitude=' + loc.sea.lat + '&longitude=' + loc.sea.lon +
+      '&current=wave_height,wave_direction,wave_period,sea_surface_temperature' +
+      '&hourly=wave_height,sea_level_height_msl&timezone=auto&timeformat=unixtime&past_days=1&forecast_days=3');
+    S.sea = m;
+    const c = m.current || {}, H = m.hourly;
+    if (c.wave_height == null && c.sea_surface_temperature == null) throw new Error('pas de données mer pour ce lieu');
+    const w = S.weather ? S.weather.current : null;
+    const uv = S.weather ? S.weather.daily.uv_index_max[0] : null;
+    // houle des prochaines heures
+    const now = Date.now() / 1000;
+    let start = H.time.findIndex(t => t >= now - 3600); if (start < 0) start = 0;
+    let waves = '';
+    for (let k = start; k < Math.min(start + 24, H.time.length); k += 3){
+      waves += `<div class="h"><div>${k === start ? 'Maint.' : new Date(H.time[k]*1000).getHours() + 'h'}</div>
+        <div class="e">🌊</div><div>${num(H.wave_height[k])}</div><div class="p">m</div></div>`;
+    }
+    $('#seaNow').innerHTML = `<h2><span>Mer · ${esc(loc.name)}</span><small>màj ${hm(new Date())}</small></h2>
+      <div class="bigstat">
+        <div class="st"><div class="v">${c.sea_surface_temperature == null ? '–' : R(c.sea_surface_temperature) + '°'}</div><div class="l">🌡️ Eau</div></div>
+        <div class="st"><div class="v">${num(c.wave_height)}<small> m</small></div><div class="l">🌊 Vagues ${dirArrow(c.wave_direction)}</div></div>
+        <div class="st"><div class="v">${c.wave_period == null ? '–' : R(c.wave_period)}<small> s</small></div><div class="l">⏱️ Période</div></div>
+        <div class="st"><div class="v">${w ? R(w.wind_speed_10m) : '–'}<small> km/h</small></div><div class="l">💨 Vent ${w ? dirName(w.wind_direction_10m) + ' ' + dirArrow(w.wind_direction_10m) : ''}</div></div>
+        <div class="st"><div class="v">${w ? R(w.wind_gusts_10m) : '–'}<small> km/h</small></div><div class="l">🌬️ Rafales</div></div>
+        <div class="st"><div class="v">${uv == null ? '–' : R(uv)}</div><div class="l">☀️ UV max ${uv == null ? '' : '· ' + uvLabel(uv)}</div></div>
+      </div>
+      <div class="sub">Hauteur des vagues (toutes les 3 h)</div><div class="hours">${waves}</div>`;
+
+    const lv = H.sea_level_height_msl;
+    if (!lv || lv.every(v => v == null)) {
+      $('#seaTide').innerHTML = '<h2>Marées</h2><div class="empty">Pas de données de marée pour ce lieu.</div>';
+    } else {
+      const tides = findTides(H.time, lv);
+      const next = tides.filter(x => x.t >= now).slice(0, 4);
+      S.tides = next;
+      $('#seaTide').innerHTML = `<h2><span>Marées</span><small>estimation</small></h2>
+        ${tideCurve(H.time, lv, tides)}
+        <div class="tides">${next.map(x => `<div class="td"><span><span class="k">${x.type === 'high' ? '⬆️ Pleine mer' : '⬇️ Basse mer'}</span><br>
+          ${dayLabel(x.t)}</span><b>${hm(new Date(x.t*1000))}</b></div>`).join('')}</div>
+        <p class="note">Horaires estimés à partir d'un modèle océanique (précision de l'ordre de 15 à 30 min). Ne pas utiliser pour la navigation : référez-vous à l'annuaire officiel des marées (SHOM).</p>`;
+    }
+  }catch(e){
+    S.sea = null;
+    $('#seaNow').innerHTML = `<h2>Mer</h2><div class="err">Impossible de charger les données de la mer : ${esc(e.message)}</div>`;
+    $('#seaTide').innerHTML = '<h2>Marées</h2><div class="empty">Indisponible.</div>';
+  }
+}
+function dayLabel(t){
+  const d = new Date(t*1000), today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.floor((d - today) / 864e5);
+  return diff === 0 ? "aujourd'hui" : diff === 1 ? 'demain' : JOURS[d.getDay()];
+}
+
+/* ================= Santé : air, pollens, UV ================= */
+function aqiInfo(v){
+  if (v == null) return ['–', '#97a3bd', ''];
+  if (v <= 20) return ['Bon', 'var(--good)', "Profitez de l'air extérieur."];
+  if (v <= 40) return ['Correct', 'var(--fair)', 'Aucune précaution particulière.'];
+  if (v <= 60) return ['Moyen', 'var(--mod)', 'Personnes sensibles : limitez les efforts prolongés dehors.'];
+  if (v <= 80) return ['Médiocre', 'var(--poor)', 'Réduisez les activités physiques intenses en extérieur.'];
+  if (v <= 100) return ['Mauvais', 'var(--bad)', 'Évitez les efforts dehors, aérez aux heures les moins polluées.'];
+  return ['Très mauvais', 'var(--vbad)', 'Restez à l’intérieur autant que possible.'];
+}
+function uvLabel(v){ return v < 3 ? 'faible' : v < 6 ? 'modéré' : v < 8 ? 'élevé' : v < 11 ? 'très élevé' : 'extrême'; }
+// Niveaux indicatifs en grains/m³
+function pollenInfo(v){
+  if (v == null) return ['–', 0, '#97a3bd'];
+  if (v < 1) return ['Aucun', 0, 'var(--good)'];
+  if (v < 10) return ['Faible', 25, 'var(--fair)'];
+  if (v < 50) return ['Modéré', 50, 'var(--mod)'];
+  if (v < 100) return ['Élevé', 75, 'var(--poor)'];
+  return ['Très élevé', 100, 'var(--bad)'];
+}
+const POLLENS = [['grass_pollen','Graminées'],['birch_pollen','Bouleau'],['alder_pollen','Aulne'],
+  ['mugwort_pollen','Armoise'],['olive_pollen','Olivier'],['ragweed_pollen','Ambroisie']];
+
+async function loadAir(loc){
+  try{
+    const a = await getJSON('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=' + loc.lat + '&longitude=' + loc.lon +
+      '&current=european_aqi,pm10,pm2_5,nitrogen_dioxide,ozone,uv_index,' + POLLENS.map(p => p[0]).join(',') +
+      '&hourly=' + POLLENS.map(p => p[0]).join(',') + '&timezone=auto&timeformat=unixtime&forecast_days=2');
+    S.air = a;
+    const c = a.current, [lbl, col, adv] = aqiInfo(c.european_aqi);
+    const uvNow = c.uv_index, uvMax = S.weather ? S.weather.daily.uv_index_max[0] : null;
+    $('#airCard').innerHTML = `<h2><span>Qualité de l'air · ${esc(loc.name)}</span><small>màj ${hm(new Date())}</small></h2>
+      <div class="aqi"><div class="ring" style="border-color:${col}"><b>${c.european_aqi == null ? '–' : R(c.european_aqi)}</b><span>indice EU</span></div>
+        <div><div class="lbl" style="color:${col}">${lbl}</div><div class="adv">${adv}</div></div></div>
+      <div class="pol">
+        <div class="pv"><b>${c.pm2_5 == null ? '–' : R(c.pm2_5)}</b><span>PM2,5 µg/m³</span></div>
+        <div class="pv"><b>${c.pm10 == null ? '–' : R(c.pm10)}</b><span>PM10 µg/m³</span></div>
+        <div class="pv"><b>${c.nitrogen_dioxide == null ? '–' : R(c.nitrogen_dioxide)}</b><span>NO₂ µg/m³</span></div>
+        <div class="pv"><b>${c.ozone == null ? '–' : R(c.ozone)}</b><span>Ozone µg/m³</span></div>
+        <div class="pv"><b>${uvNow == null ? '–' : R(uvNow)}</b><span>UV maintenant</span></div>
+        <div class="pv"><b>${uvMax == null ? '–' : R(uvMax)}</b><span>UV max · ${uvMax == null ? '' : uvLabel(uvMax)}</span></div>
+      </div>
+      <p class="note">Indice européen de qualité de l'air (0 = excellent). Source : Copernicus via Open-Meteo.</p>`;
+
+    // pollens : maximum des prochaines 24 h
+    const now = Date.now() / 1000, H = a.hourly;
+    const rows = POLLENS.map(([k, name]) => {
+      let max = null;
+      H.time.forEach((t, i) => { if (t >= now - 3600 && t <= now + 24*3600 && H[k] && H[k][i] != null) max = Math.max(max == null ? 0 : max, H[k][i]); });
+      if (max == null && c[k] != null) max = c[k];
+      return {name, max, info: pollenInfo(max)};
+    });
+    S.pollen = rows;
+    const any = rows.some(r => r.max != null);
+    const allNone = rows.every(r => r.max == null || r.max < 1);
+    $('#pollenCard').innerHTML = `<h2><span>Pollens</span><small>max. sur 24 h</small></h2>
+      ${!any ? '<div class="empty">Pas de données de pollens pour ce lieu.</div>' : `
+      ${allNone ? '<div class="empty" style="margin-bottom:10px">🌱 Pas de pollen dans l\'air en ce moment (hors saison).</div>' : ''}
+      <div class="pl">${rows.map(r => `<div class="pr"><span>${r.name}</span>
+        <div class="bar"><i style="width:${Math.max(r.info[1], r.max ? 4 : 0)}%;background:${r.info[2]}"></i></div>
+        <span class="lv">${r.info[0]}</span></div>`).join('')}</div>`}
+      <p class="note">Niveaux indicatifs (grains/m³). Pour un suivi médical, consultez le RNSA (pollens.fr).</p>`;
+  }catch(e){
+    S.air = null; S.pollen = null;
+    $('#airCard').innerHTML = `<h2>Qualité de l'air</h2><div class="err">Impossible de charger : ${esc(e.message)}</div>`;
+    $('#pollenCard').innerHTML = '<h2>Pollens</h2><div class="empty">Indisponible.</div>';
+  }
+}
+
+/* ================= En bref (accueil) ================= */
+function renderBrief(){
+  const items = [];
+  const sea = S.sea && S.sea.current;
+  items.push({tab:'sea', l:'🌊 Mer', v: sea && sea.sea_surface_temperature != null ? `Eau ${R(sea.sea_surface_temperature)}°` : '–',
+    s: sea && sea.wave_height != null ? `Vagues ${num(sea.wave_height)} m` : ''});
+  const nt = S.tides && S.tides[0];
+  items.push({tab:'sea', l: nt ? (nt.type === 'high' ? '⬆️ Pleine mer' : '⬇️ Basse mer') : '🌊 Marée', v: nt ? hm(new Date(nt.t*1000)) : '–',
+    s: S.tides && S.tides[1] ? (S.tides[1].type === 'high' ? 'puis pleine mer ' : 'puis basse mer ') + hm(new Date(S.tides[1].t*1000)) : ''});
+  const aq = S.air && S.air.current, ai = aqiInfo(aq ? aq.european_aqi : null);
+  items.push({tab:'health', l:"🌬️ Qualité de l'air", v: `<i class="dot" style="background:${ai[1]}"></i>${ai[0]}`, s: aq && aq.european_aqi != null ? 'Indice ' + R(aq.european_aqi) : ''});
+  let pol = '–', ps = '';
+  if (S.pollen){
+    const top = S.pollen.filter(r => r.max != null).sort((a, b) => b.max - a.max)[0];
+    if (top){ pol = `<i class="dot" style="background:${top.info[2]}"></i>${top.max < 1 ? 'Aucun' : top.info[0]}`; ps = top.max < 1 ? 'Hors saison' : top.name; }
+  }
+  items.push({tab:'health', l:'🌿 Pollens', v: pol, s: ps});
+  $('#brief').innerHTML = items.map(i => `<button class="bi" data-tab="${i.tab}"><span class="l">${i.l}</span><span class="v">${i.v}</span><span class="s">${esc(i.s)}</span></button>`).join('');
+}
+$('#brief').addEventListener('click', e => { const b = e.target.closest('.bi'); if (b) showTab(b.dataset.tab); });
+
+/* ================= Musique (Alexa) ================= */
+function renderMusic(){
+  const dev = (cfg.device || '').trim() || 'mon enceinte';
+  const sur = ` sur ${esc(dev)}`;
+  const tileUrl = CAN_LAUNCH_APPS && cfg.apps.music;
+  $('#musicMain').innerHTML = `<h2>Musique</h2>
+    <div class="device"><span class="ic">🔊</span><div><div class="n">${esc(dev)}</div><div class="s">Enceinte Alexa</div></div></div>
+    ${tileUrl ? `<button class="tile music bigmusic" data-app="music"><span class="ic">🎵</span>
+      <span><div class="t">Amazon Music</div><div class="s">Ouvrir l'application</div></span></button>` : ''}
+    <div class="sub">Lancer une écoute</div>
+    <div class="cmds">${(cfg.favs || []).filter(Boolean).map(f => `<div class="cmd"><q><b>Alexa</b>, joue ${esc(f)}${sur}</q></div>`).join('')}</div>
+    <p class="note">ℹ️ Le titre en cours sur ${esc(dev)} ne peut pas s'afficher ici : Amazon ne le permet pas aux pages web. Demandez « Alexa, qu'est-ce qui joue ? ».</p>`;
+  const C = [
+    ['⏯️ Lecture', `<q><b>Alexa</b>, pause${sur}</q><br><q><b>Alexa</b>, reprends${sur}</q>`],
+    ['⏭️ Morceaux', `<q><b>Alexa</b>, suivant${sur}</q><br><q><b>Alexa</b>, précédent${sur}</q>`],
+    ['🔉 Volume', `<q><b>Alexa</b>, volume 5${sur}</q><br><q><b>Alexa</b>, plus fort${sur}</q>`],
+    ['ℹ️ Infos', `<q><b>Alexa</b>, qu'est-ce qui joue ?</q><br><q><b>Alexa</b>, qui chante ?</q>`],
+    ['⏰ Minuterie', `<q><b>Alexa</b>, arrête la musique dans 30 minutes</q>`],
+    ['🔁 Ailleurs', `<q><b>Alexa</b>, déplace la musique sur …</q>`],
+  ];
+  $('#musicCmds').innerHTML = `<h2>Commandes vocales</h2><div class="cmds">${C.map(([w, t]) => `<div class="cmd"><span class="w">${w}</span>${t}</div>`).join('')}</div>`;
+  bindTiles();
+}
+
+/* ================= Tuiles d'applications ================= */
+// Chrome, Brave… ouvrent le Play Store au lieu de l'application : tuiles visibles seulement dans Silk (Fire) et Fully Kiosk.
+const CAN_LAUNCH_APPS = /Silk/i.test(navigator.userAgent) || !!window.fully;
 function renderTiles(){
-  document.querySelectorAll('.tile').forEach(t => { t.hidden = !cfg.apps[t.dataset.app]; });
+  document.querySelectorAll('.apps .tile').forEach(t => { t.hidden = !cfg.apps[t.dataset.app]; });
+  const show = CAN_LAUNCH_APPS && [...document.querySelectorAll('.apps .tile')].some(t => !t.hidden);
+  $('.apps').style.display = show ? '' : 'none';
+  $('#p-home .col').style.gridTemplateRows = show ? 'auto 1fr' : '1fr';
 }
-document.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () => {
-  const url = cfg.apps[t.dataset.app]; if (url) window.location.href = url;
-}));
+function openApp(key){
+  const url = cfg.apps[key]; if (!url) return;
+  const m = url.match(/package=([\w.]+)/);
+  if (m && window.fully && typeof fully.startApplication === 'function'){ try { fully.startApplication(m[1]); return; } catch (e) {} }
+  window.location.href = url;
+}
+function bindTiles(){
+  document.querySelectorAll('.tile').forEach(t => { if (!t._b){ t._b = 1; t.addEventListener('click', () => openApp(t.dataset.app)); } });
+}
 
-/* ---------- Commandes vocales des prises ---------- */
-function renderPlugs(){
-  $('#voiceCard').style.display = cfg.plugs.length ? '' : 'none';
-  $('#voiceList').innerHTML = cfg.plugs.map(p => `<div class="vc"><div class="top"><span class="pi">${esc(p.icon || '🔌')}</span>${esc(p.name)}</div>
-    <div class="say"><span>« <b>Alexa</b>, allume ${esc(p.alexa || p.name)} »</span><span>« <b>Alexa</b>, éteins ${esc(p.alexa || p.name)} »</span></div></div>`).join('');
+/* ================= Chargement global ================= */
+async function loadAll(){
+  let loc;
+  try { loc = await locate(); }
+  catch (e) { $('#weather').innerHTML = `<h2>Météo</h2><div class="err">${esc(e.message)}</div>`; return; }
+  await loadWeather(loc);                       // d'abord la météo (vent et UV réutilisés ailleurs)
+  await Promise.all([loadSea(loc), loadAir(loc)]);
+  renderBrief();
 }
-renderTiles(); renderPlugs();
+renderTiles(); renderMusic(); renderBrief();
+loadAll(); setInterval(loadAll, 15 * 60000);
 
-/* ---------- Plein écran et écran toujours allumé ---------- */
-let wakeLock = null;
-async function keepAwake(){
-  try { if ('wakeLock' in navigator && !document.hidden) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
-}
+/* ================= Plein écran, écran allumé ================= */
+async function keepAwake(){ try { if ('wakeLock' in navigator && !document.hidden) await navigator.wakeLock.request('screen'); } catch (e) {} }
 $('#fullscreen').onclick = () => {
   if (document.fullscreenElement) document.exitFullscreen();
   else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
   keepAwake();
 };
 document.addEventListener('click', keepAwake, {once:true});
-document.addEventListener('visibilitychange', () => { if (!document.hidden){ keepAwake(); loadWeather(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden){ keepAwake(); loadAll(); } });
 
-/* ---------- Réglages ---------- */
-function plugRow(p){
-  p = p || {icon:'🔌', name:'', alexa:''};
-  const d = document.createElement('div'); d.className = 'row';
-  d.innerHTML = `<input value="${esc(p.icon)}" data-k="icon"><input value="${esc(p.name)}" data-k="name" placeholder="Nom affiché">
-    <input value="${esc(p.alexa)}" data-k="alexa" placeholder="Nom dans Alexa"><button class="del">✕</button>`;
-  d.querySelector('.del').onclick = () => d.remove();
-  return d;
-}
+/* ================= Réglages ================= */
 function fillSettings(c){
-  $('#sCity').value = c.city; $('#sMusic').value = c.apps.music; $('#sAlexa').value = c.apps.alexa;
-  $('#sTapo').value = c.apps.tapo; $('#sMi').value = c.apps.mi;
-  const s = $('#sPlugs'); s.innerHTML = ''; c.plugs.forEach(p => s.appendChild(plugRow(p)));
+  $('#sCity').value = c.city; $('#sDevice').value = c.device; $('#sFavs').value = (c.favs || []).join(', ');
+  $('#sMusic').value = c.apps.music; $('#sAlexa').value = c.apps.alexa; $('#sTapo').value = c.apps.tapo; $('#sMi').value = c.apps.mi;
 }
 $('#openSettings').onclick = () => { fillSettings(cfg); $('#modal').classList.add('open'); };
-$('#addPlug').onclick = () => $('#sPlugs').appendChild(plugRow());
 $('#reset').onclick = () => fillSettings(DEFAULTS);
 $('#cancel').onclick = () => $('#modal').classList.remove('open');
 $('#save').onclick = () => {
   const cityChanged = cfg.city !== $('#sCity').value;
   cfg.city = $('#sCity').value;
+  cfg.device = $('#sDevice').value.trim();
+  cfg.favs = $('#sFavs').value.split(',').map(s => s.trim()).filter(Boolean);
   cfg.apps = {music:$('#sMusic').value.trim(), alexa:$('#sAlexa').value.trim(), tapo:$('#sTapo').value.trim(), mi:$('#sMi').value.trim()};
-  cfg.plugs = [...document.querySelectorAll('#sPlugs .row')].map(r => {
-    const o = {}; r.querySelectorAll('input').forEach(i => o[i.dataset.k] = i.value.trim()); return o;
-  }).filter(p => p.name);
-  saveCfg(); renderTiles(); renderPlugs(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
-  if (cityChanged) loadWeather();
+  saveCfg(); renderTiles(); renderMusic(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
+  if (cityChanged) loadAll();
 };
-$('#refresh').onclick = () => { loadWeather(); toast('Actualisation…'); };
+$('#refresh').onclick = () => { loadAll(); toast('Actualisation…'); };
 </script>
 </body>
 </html>
