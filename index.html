@@ -110,6 +110,64 @@
   .bi .s{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dot{width:10px;height:10px}
 
+  /* Radios */
+  #p-radios{grid-template-columns:1fr}
+  .rbar{display:flex;align-items:center;gap:12px;background:var(--card2);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+  .rbar .info{flex:1;min-width:0}
+  .rbar .n{font-size:18px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rbar .a{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rbar .a b{color:var(--alexa);font-weight:600}
+  .badge{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;
+    font-size:13px;line-height:1.05;text-align:center;flex:0 0 auto;letter-spacing:-.02em;padding:2px}
+  .rgroup{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:12px 0 6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+  .stn{display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:12px;padding:8px;text-align:left;border:2px solid transparent;min-width:0}
+  .stn .nm{flex:1;font-size:15px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stn .nm small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+  .stn.on{border-color:var(--accent);background:#1d3157}
+  .stn .star{font-size:20px;padding:4px;opacity:.35;flex:0 0 auto}
+  .stn .star.fav{opacity:1}
+  #p-radios .card{overflow-y:auto}
+
+  /* Mode voiture */
+  #car{position:fixed;inset:0;background:#05070c;z-index:30;display:none;padding:16px;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr;gap:14px;user-select:none}
+  body.car #car{display:grid}
+  body.car .app{display:none}
+  .c-top{grid-column:1 / -1;display:flex;align-items:center;gap:20px}
+  .c-clock{font-size:76px;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
+  .c-wx{font-size:40px;display:flex;align-items:center;gap:10px;min-width:0}
+  .c-wx small{font-size:17px;color:var(--muted);display:block}
+  .c-exit{margin-left:auto;width:64px;height:64px;border-radius:18px;background:var(--card);font-size:28px;border:1px solid var(--line)}
+  .c-box{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  .c-lbl{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+  .c-st{display:flex;align-items:center;gap:14px;min-width:0}
+  .c-st .badge{width:72px;height:72px;font-size:19px;border-radius:16px}
+  .c-st .n{font-size:28px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c-st .s{font-size:16px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c-ctrl{display:flex;justify-content:center;align-items:center;gap:22px;margin-top:auto;padding-top:14px}
+  .c-ctrl button{width:84px;height:84px;border-radius:50%;background:var(--card2);font-size:34px}
+  .c-ctrl .pp{width:112px;height:112px;background:var(--accent);color:#fff;font-size:46px}
+  .c-ev .t{font-size:26px;font-weight:700;line-height:1.2}
+  .c-ev .w{font-size:19px;color:var(--muted);margin-top:4px}
+  .c-btns{display:flex;gap:12px;margin-top:auto;padding-top:14px}
+  .c-btns button{flex:1;height:76px;border-radius:18px;font-size:21px;font-weight:700;background:var(--card2)}
+  .c-btns .go{background:var(--good);color:#04130a}
+  .c-btns button[hidden]{display:none}
+  @media (orientation:portrait){
+    #car{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 1fr}
+    .c-top{gap:12px}
+    .c-clock{font-size:54px}
+    .c-wx{font-size:28px;min-width:0}
+    .c-wx small{font-size:14px}
+    .c-exit{width:52px;height:52px;font-size:24px;flex:0 0 auto}
+  }
+  @media (max-height:480px){
+    .c-clock{font-size:52px} .c-wx{font-size:28px} .c-exit{width:52px;height:52px}
+    .c-ctrl button{width:66px;height:66px;font-size:26px} .c-ctrl .pp{width:84px;height:84px;font-size:34px}
+    .c-st .badge{width:56px;height:56px} .c-st .n{font-size:22px} .c-ev .t{font-size:21px} .c-btns button{height:60px;font-size:18px}
+  }
+
   /* Agenda */
   .agday{margin-bottom:12px}
   .agday h3{font-size:14px;color:var(--muted);margin-bottom:6px;font-weight:600}
@@ -306,8 +364,10 @@
       <button class="tab" data-tab="health">🌿<span class="tl"> Santé</span></button>
       <button class="tab" data-tab="musicp">🎵<span class="tl"> Musique</span></button>
       <button class="tab" data-tab="agenda">📅<span class="tl"> Agenda</span></button>
+      <button class="tab" data-tab="radios">📻<span class="tl"> Radios</span></button>
     </nav>
     <div class="hd-right">
+      <button class="icon-btn" id="carBtn" title="Mode voiture">🚗</button>
       <button class="icon-btn" id="fullscreen" title="Plein écran">⛶</button>
       <button class="icon-btn" id="refresh" title="Actualiser">↻</button>
       <button class="icon-btn" id="openSettings" title="Réglages">⚙︎</button>
@@ -332,14 +392,14 @@
           <span><div class="t">Xiaomi Home</div><div class="s">Appareils Mi</div></span></button>
       </section>
       <section class="card radio" id="radioCard">
-        <div class="logo">🎻</div>
+        <div class="logo" id="homeBadge">🎻</div>
         <div class="info">
-          <div class="st1"><i class="live"></i> Radio Classique · en direct</div>
+          <div class="st1"><i class="live"></i> <span id="homeStation">Radio Classique</span> · en direct</div>
           <div class="np" id="npTitle">Musique classique en direct</div>
           <div class="np2" id="npSub"></div>
         </div>
         <button class="rbtn play" id="radioPlay" title="Écouter sur cet appareil">▶</button>
-        <button class="rbtn" id="radioWeb" title="Ouvrir la page du direct">↗</button>
+        <button class="rbtn" id="radioWeb" title="Toutes les radios">📻</button>
       </section>
       <section class="card brief">
         <button class="today" id="today" data-tab="agenda"></button>
@@ -364,6 +424,15 @@
   <main class="page" id="p-musicp">
     <section class="card" id="musicMain"></section>
     <section class="card" id="musicCmds"></section>
+  </main>
+
+  <!-- ===== Radios ===== -->
+  <main class="page" id="p-radios">
+    <section class="card"><h2><span>Radios DAB+ de la région · écoute par Internet</span><small>⭐ = favoris (mode voiture)</small></h2>
+      <div class="rbar" id="rbar"></div>
+      <div id="rlist"></div>
+      <p class="note">Les tablettes et téléphones n'ont pas de récepteur DAB+ : ces radios sont écoutées par Internet (environ 30 à 60 Mo par heure en données mobiles). Liste indicative des radios diffusées en DAB+ sur le Dunkerquois.</p>
+    </section>
   </main>
 
   <!-- ===== Agenda ===== -->
@@ -391,6 +460,15 @@
     <input id="sStream">
     <label>Adresse des infos « morceau en cours » (laisser vide si inconnue)</label>
     <input id="sNp" placeholder="https://…">
+
+    <h4>Radios et mode voiture</h4>
+    <label>Adresse de la maison (pour le bouton 🏠 Maison du mode voiture)</label>
+    <input id="sHome" placeholder="ex. 10 digue de Mer, 59240 Dunkerque">
+    <label>Application de navigation</label>
+    <select id="sNavApp" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:15px">
+      <option value="gmaps">Google Maps</option><option value="waze">Waze</option>
+    </select>
+    <label class="chk"><input type="checkbox" id="sCarStart"> Ouvrir directement en mode voiture sur cet appareil</label>
 
     <h4>Agenda Google</h4>
     <p class="hint">Adresse de votre script Google (elle se termine par /exec). Elle reste enregistrée sur cet appareil uniquement : ne la partagez pas.</p>
@@ -423,6 +501,33 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- ===== Mode voiture ===== -->
+<div id="car">
+  <div class="c-top">
+    <div class="c-clock" id="cClock">--:--</div>
+    <div class="c-wx" id="cWx"></div>
+    <button class="c-exit" id="cExit" title="Quitter le mode voiture">✕</button>
+  </div>
+  <div class="c-box">
+    <div class="c-lbl">📻 Radio</div>
+    <div class="c-st" id="cSt"></div>
+    <div class="c-ctrl">
+      <button id="cPrev" title="Station précédente">⏮</button>
+      <button class="pp" id="cPlay" title="Lecture / pause">▶</button>
+      <button id="cNext" title="Station suivante">⏭</button>
+    </div>
+  </div>
+  <div class="c-box">
+    <div class="c-lbl" id="cEvLbl">📅 Prochain rendez-vous</div>
+    <div class="c-ev" id="cEv"></div>
+    <div class="c-btns">
+      <button class="go" id="cGo" hidden>🧭 Y aller</button>
+      <button id="cHome" hidden>🏠 Maison</button>
+      <button id="cNav">🗺️ GPS</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ================= Configuration ================= */
 // Ouvre l'application Android installée (Fire OS, Android).
@@ -433,6 +538,11 @@ const DEFAULTS = {
   city: '',
   device: 'Salon Ouest',
   agendaUrl: '',
+  homeAddr: '',
+  navApp: 'gmaps',
+  carStart: false,
+  radioFavs: ['rc', 'inter', 'fip', 'icinord', 'info'],
+  lastStation: 'rc',
   show: {},
   radioStream: 'https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3',
   radioPage: 'https://www.radioclassique.fr/direct-radio/',
@@ -808,6 +918,7 @@ function renderAgenda(){
     html += `<div class="more">Demain : ${f.a ? '' : hm(new Date(f.s)) + ' · '}${esc(f.t)}${tomorrow.length > 1 ? ' (+' + (tomorrow.length - 1) + ')' : ''}</div>`;
   }
   box.innerHTML = html;
+  renderCar();
 }
 
 /* ================= Musique (Alexa) ================= */
@@ -866,24 +977,134 @@ async function loadAll(){
   catch (e) { $('#weather').innerHTML = `<h2>Météo</h2><div class="err">${esc(e.message)}</div>`; return; }
   await loadWeather(loc);                       // d'abord la météo (vent et UV réutilisés ailleurs)
   await Promise.all([loadSea(loc), loadAir(loc)]);
-  renderBrief(); renderEphem();
+  renderBrief(); renderEphem(); renderCar();
 }
-/* ================= Radio Classique (accueil) ================= */
-let radio = null;
-function stopRadio(){
-  if (radio){ radio.pause(); radio.removeAttribute('src'); radio.load(); radio = null; }
-  $('#radioCard').classList.remove('playing'); $('#radioPlay').textContent = '▶';
-}
-$('#radioPlay').onclick = () => {
-  if (radio){ stopRadio(); return; }
-  if (!cfg.radioStream){ toast('Aucun flux audio dans les réglages'); return; }
-  radio = new Audio(cfg.radioStream);
-  radio.onerror = () => { stopRadio(); toast('Flux de la radio indisponible'); };
-  radio.play().then(() => { $('#radioCard').classList.add('playing'); $('#radioPlay').textContent = '⏸'; })
-    .catch(() => { stopRadio(); toast('Lecture impossible'); });
-};
-$('#radioWeb').onclick = () => { if (cfg.radioPage) window.open(cfg.radioPage, '_blank'); };
+/* ================= Radios (lecteur commun : accueil, onglet Radios, mode voiture) ================= */
+const RF = id => `https://icecast.radiofrance.fr/${id}-midfi.mp3`;
+// q = nom recherché dans l'annuaire libre radio-browser.info si l'adresse directe est absente ou ne répond pas
+const STATIONS = [
+  {g:'Radio France', id:'inter', name:'France Inter', b:'France\nInter', c:'#e2001a', url:RF('franceinter'), q:'France Inter'},
+  {g:'Radio France', id:'info', name:'franceinfo', b:'info', c:'#ffc300', url:RF('franceinfo'), q:'franceinfo'},
+  {g:'Radio France', id:'culture', name:'France Culture', b:'France\nCult.', c:'#7b2d8e', url:RF('franceculture'), q:'France Culture'},
+  {g:'Radio France', id:'musique', name:'France Musique', b:'France\nMus.', c:'#c4007a', url:RF('francemusique'), q:'France Musique'},
+  {g:'Radio France', id:'fip', name:'FIP', b:'FIP', c:'#e2007a', url:RF('fip'), q:'FIP'},
+  {g:'Radio France', id:'mouv', name:"Mouv'", b:"Mouv'", c:'#1d1d1b', url:RF('mouv'), q:'Mouv'},
+  {g:'Radio France', id:'icinord', name:'ici Nord', sub:'ex-France Bleu Nord', b:'ici\nNord', c:'#0d6efd', url:RF('fbnord'), q:'France Bleu Nord', alexa:'ici Nord'},
+  {g:'Nationales', id:'rc', name:'Radio Classique', b:'Radio\nClass.', c:'#7a1f2b', q:'Radio Classique'},
+  {g:'Nationales', id:'rtl', name:'RTL', b:'RTL', c:'#e3001b', q:'RTL'},
+  {g:'Nationales', id:'rtl2', name:'RTL2', b:'RTL2', c:'#d4002d', q:'RTL2'},
+  {g:'Nationales', id:'fun', name:'Fun Radio', b:'Fun', c:'#e5007d', q:'Fun Radio'},
+  {g:'Nationales', id:'europe1', name:'Europe 1', b:'E1', c:'#1a1aa6', q:'Europe 1'},
+  {g:'Nationales', id:'europe2', name:'Europe 2', b:'E2', c:'#00a0e1', q:'Europe 2'},
+  {g:'Nationales', id:'rmc', name:'RMC', b:'RMC', c:'#004b93', q:'RMC'},
+  {g:'Nationales', id:'bfm', name:'BFM Business', b:'BFM', c:'#00346b', q:'BFM Business'},
+  {g:'Nationales', id:'sud', name:'Sud Radio', b:'Sud', c:'#e30613', q:'Sud Radio'},
+  {g:'Nationales', id:'nrj', name:'NRJ', b:'NRJ', c:'#d6001c', q:'NRJ'},
+  {g:'Nationales', id:'nostalgie', name:'Nostalgie', b:'Nosta.', c:'#e85d04', q:'Nostalgie'},
+  {g:'Nationales', id:'cherie', name:'Chérie FM', b:'Chérie', c:'#e6007e', q:'Cherie FM'},
+  {g:'Nationales', id:'rire', name:'Rire & Chansons', b:'R&C', c:'#f59c00', q:'Rire et Chansons'},
+  {g:'Nationales', id:'rfm', name:'RFM', b:'RFM', c:'#00539f', q:'RFM'},
+  {g:'Nationales', id:'skyrock', name:'Skyrock', b:'Sky', c:'#111111', q:'Skyrock'},
+  {g:'Nationales', id:'nova', name:'Radio Nova', b:'Nova', c:'#7c3aed', q:'Radio Nova'},
+  {g:'Nationales', id:'tsf', name:'TSF Jazz', b:'TSF', c:'#b8860b', q:'TSF Jazz'},
+  {g:'Nationales', id:'jazz', name:'Jazz Radio', b:'Jazz', c:'#8b5a2b', q:'Jazz Radio'},
+  {g:'Nationales', id:'mradio', name:'M Radio', b:'M', c:'#c2185b', q:'M Radio'},
+  {g:'Nationales', id:'latina', name:'Latina', b:'Lat.', c:'#ff6f00', q:'Latina'},
+  {g:"Côte d'Opale", id:'delta', name:'Delta FM', sub:'Dunkerque', b:'Delta', c:'#0097a7', q:'Delta FM'},
+  {g:"Côte d'Opale", id:'radio6', name:'Radio 6', sub:"Côte d'Opale", b:'Radio\n6', c:'#2e7d32', q:'Radio 6'},
+];
+const stById = id => STATIONS.find(x => x.id === id) || STATIONS.find(x => x.id === 'rc');
+const badge = (st, cls = '') => `<div class="badge ${cls}" style="background:${st.c}">${esc(st.b).replace(/\n/g, '<br>')}</div>`;
+const P = {audio: null, st: stById(cfg.lastStation), playing: false, busy: false};
 
+// Annuaire radio-browser.info (gratuit) : retrouve le flux https d'une station par son nom ; résultat gardé en mémoire.
+const RB_KEY = 'radio-stream-cache';
+let rbCache = {}; try { rbCache = JSON.parse(localStorage.getItem(RB_KEY) || '{}'); } catch (e) {}
+async function rbLookup(st){
+  for (const h of ['de1', 'de2', 'fi1', 'nl1']){
+    try{
+      const list = await getJSON(`https://${h}.api.radio-browser.info/json/stations/search?name=${encodeURIComponent(st.q || st.name)}` +
+        '&countrycode=FR&hidebroken=true&order=votes&reverse=true&limit=10');
+      const ok = list.find(x => (x.url_resolved || '').startsWith('https://'));
+      if (ok){ rbCache[st.id] = ok.url_resolved; try { localStorage.setItem(RB_KEY, JSON.stringify(rbCache)); } catch (e) {} return ok.url_resolved; }
+      return null;
+    }catch(e){}
+  }
+  return null;
+}
+function tryPlay(url){
+  return new Promise((ok, ko) => {
+    const a = new Audio(url);
+    a.onerror = () => ko(new Error('flux'));
+    a.play().then(() => ok(a)).catch(ko);
+  });
+}
+function stopRadio(){
+  if (P.audio){ P.audio.pause(); P.audio.removeAttribute('src'); P.audio.load(); P.audio = null; }
+  P.playing = false; renderPlayer();
+}
+async function playStation(st){
+  stopRadio(); P.st = st; P.busy = true; renderPlayer();
+  cfg.lastStation = st.id; saveCfg();
+  const first = st.id === 'rc' ? cfg.radioStream : (rbCache[st.id] || st.url);
+  let audio = null;
+  if (first){ try { audio = await tryPlay(first); } catch (e) {} }
+  if (!audio){ // adresse directe absente ou en panne : on cherche dans l'annuaire
+    const u = await rbLookup(st);
+    if (u && u !== first){ try { audio = await tryPlay(u); } catch (e) {} }
+  }
+  if (P.st !== st){ if (audio) audio.pause(); return; } // l'utilisateur a changé de station entre-temps
+  P.busy = false;
+  if (!audio){ toast(st.name + ' : flux indisponible'); renderPlayer(); return; }
+  P.audio = audio; P.playing = true;
+  audio.onerror = () => { stopRadio(); toast(st.name + ' : flux interrompu'); };
+  renderPlayer();
+}
+function togglePlay(){ if (P.playing || P.busy){ P.busy = false; stopRadio(); } else playStation(P.st); }
+function stepStation(dir){
+  const ids = (cfg.radioFavs && cfg.radioFavs.length ? cfg.radioFavs : STATIONS.map(x => x.id)).filter(id => STATIONS.some(x => x.id === id));
+  let i = ids.indexOf(P.st.id); i = i < 0 ? 0 : (i + dir + ids.length) % ids.length;
+  playStation(stById(ids[i]));
+}
+$('#radioPlay').onclick = togglePlay;
+$('#radioWeb').onclick = () => showTab('radios');
+
+function renderRadios(){
+  const dev = (cfg.device || '').trim() || 'mon enceinte';
+  const st = P.st;
+  $('#rbar').innerHTML = `${badge(st)}<div class="info"><div class="n">${esc(st.name)}${P.busy ? ' · connexion…' : P.playing ? ' · en écoute' : ''}</div>
+    <div class="a">Sur l'enceinte : « <b>Alexa</b>, joue ${esc(st.alexa || st.name)} sur ${esc(dev)} »</div></div>
+    <button class="rbtn play" id="rbarPlay">${P.playing || P.busy ? '⏸' : '▶'}</button>`;
+  $('#rbarPlay').onclick = togglePlay;
+  const groups = [...new Set(STATIONS.map(x => x.g))];
+  $('#rlist').innerHTML = groups.map(g => `<div class="rgroup">${esc(g)}</div><div class="rgrid">${STATIONS.filter(x => x.g === g).map(x =>
+    `<button class="stn${x.id === st.id && (P.playing || P.busy) ? ' on' : ''}" data-st="${x.id}">${badge(x)}
+      <span class="nm">${esc(x.name)}${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</span>
+      <span class="star${(cfg.radioFavs || []).includes(x.id) ? ' fav' : ''}" data-fav="${x.id}">⭐</span></button>`).join('')}</div>`).join('');
+}
+$('#rlist').addEventListener('click', e => {
+  const f = e.target.closest('[data-fav]');
+  if (f){
+    e.stopPropagation();
+    const id = f.dataset.fav, favs = cfg.radioFavs || (cfg.radioFavs = []);
+    const i = favs.indexOf(id); if (i >= 0) favs.splice(i, 1); else favs.push(id);
+    saveCfg(); renderRadios(); return;
+  }
+  const b = e.target.closest('[data-st]'); if (!b) return;
+  const st = stById(b.dataset.st);
+  if (st === P.st && (P.playing || P.busy)) togglePlay(); else playStation(st);
+});
+
+function renderPlayer(){
+  const st = P.st, on = P.playing || P.busy;
+  // accueil
+  $('#homeStation').textContent = st.name;
+  $('#homeBadge').outerHTML = st.id === 'rc' ? '<div class="logo" id="homeBadge">🎻</div>' : badge(st, 'logo').replace('class="badge logo"', 'class="badge logo" id="homeBadge"');
+  $('#radioPlay').textContent = on ? '⏸' : '▶';
+  $('#radioCard').classList.toggle('playing', P.playing);
+  renderNow();
+  renderRadios(); renderCar();
+}
 // Morceau en cours : lit une adresse JSON et y cherche titre, compositeur et interprète, quelle que soit sa structure.
 function pickTrack(obj){
   const found = {};
@@ -904,7 +1125,7 @@ function pickTrack(obj){
 }
 const withBust = u => u + (u.includes('?') ? '&' : '?') + '_=' + Date.now();
 async function loadNowPlaying(){
-  if (!cfg.npUrl){ $('#npTitle').textContent = 'Musique classique en direct'; $('#npSub').textContent = 'Écoutez ici avec ▶ ou dites « Alexa, joue Radio Classique »'; return; }
+  if (!cfg.npUrl){ S.np = null; renderNow(); return; }
   let t = null, hint = '';
   // 1) lecture directe sur le site de la radio
   try { t = pickTrack(await getJSON(withBust(cfg.npUrl))); S.npMode = 'direct'; } catch (e) { t = null; }
@@ -917,15 +1138,74 @@ async function loadNowPlaying(){
     } catch (e) {}
   }
   if (t && (t.title || t.composer)){
-    $('#npTitle').textContent = t.composer || t.title;
-    $('#npSub').textContent = (t.composer ? t.title || '' : '') + (t.artist ? (t.composer && t.title ? ' · ' : '') + t.artist : '');
+    S.np = {title: t.composer || t.title, sub: (t.composer ? t.title || '' : '') + (t.artist ? (t.composer && t.title ? ' · ' : '') + t.artist : '')};
   } else {
     S.npMode = 'erreur';
-    $('#npTitle').textContent = 'Musique classique en direct';
-    $('#npSub').textContent = 'Morceau en cours indisponible' + hint;
+    S.np = {title: 'Musique classique en direct', sub: 'Morceau en cours indisponible' + hint};
   }
+  renderNow();
+}
+// Ligne « en cours » : morceau pour Radio Classique, sinon le nom de la station.
+function nowLines(){
+  const st = P.st;
+  if (st.id === 'rc') return S.np || {title: 'Musique classique en direct', sub: 'Écoutez ici avec ▶ ou dites « Alexa, joue Radio Classique »'};
+  return {title: st.name + (st.sub ? ' · ' + st.sub : ''), sub: P.busy ? 'Connexion…' : P.playing ? 'En direct' : 'Touchez ▶ pour écouter'};
+}
+function renderNow(){
+  const n = nowLines();
+  $('#npTitle').textContent = n.title; $('#npSub').textContent = n.sub;
+  if (document.body.classList.contains('car')) renderCar();
 }
 loadNowPlaying(); setInterval(loadNowPlaying, 60000);
+
+/* ================= Mode voiture ================= */
+const navUrl = dest => cfg.navApp === 'waze'
+  ? 'https://waze.com/ul?navigate=yes&q=' + encodeURIComponent(dest)
+  : 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + encodeURIComponent(dest);
+function nextEvent(){
+  if (!S.agenda) return null;
+  const now = Date.now();
+  return S.agenda.filter(e => !e.a && e.e > now).sort((a, b) => a.s - b.s)[0] || null;
+}
+function renderCar(){
+  if (!document.body.classList.contains('car')) return;
+  const d = new Date();
+  $('#cClock').textContent = hm(d);
+  if (S.weather){
+    const c = S.weather.current, w = wmo(c.weather_code, !c.is_day);
+    const H = S.weather.hourly, nowS = Date.now() / 1000;
+    let rain = '';
+    for (let i = 0; i < H.time.length; i++) if (H.time[i] > nowS && H.time[i] <= nowS + 3 * 3600 && H.precipitation_probability[i] >= 60){ rain = '☔ Pluie vers ' + new Date(H.time[i] * 1000).getHours() + 'h'; break; }
+    $('#cWx').innerHTML = `${w[0]} ${R(c.temperature_2m)}°<span><small>${w[1]}</small><small>${rain || '💨 ' + R(c.wind_speed_10m) + ' km/h'}</small></span>`;
+  }
+  const st = P.st, n = nowLines();
+  $('#cSt').innerHTML = `${badge(st)}<div style="min-width:0"><div class="n">${esc(st.id === 'rc' ? n.title : st.name)}</div><div class="s">${esc(st.id === 'rc' ? n.sub : n.sub)}</div></div>`;
+  $('#cPlay').textContent = P.playing || P.busy ? '⏸' : '▶';
+  const ev = nextEvent();
+  if (!cfg.agendaUrl){ $('#cEv').innerHTML = '<div class="w">Agenda non configuré</div>'; $('#cGo').hidden = true; }
+  else if (!ev){ $('#cEv').innerHTML = '<div class="w">Aucun rendez-vous à venir</div>'; $('#cGo').hidden = true; }
+  else {
+    const t0 = day0(Date.now()), when = ev.s < t0 + DAY ? hm(new Date(ev.s)) : (ev.s < t0 + 2 * DAY ? 'Demain ' : fmtDay(new Date(ev.s)) + ' ') + hm(new Date(ev.s));
+    const mins = R((ev.s - Date.now()) / 60000);
+    const soon = mins > 0 && mins < 120 ? ` · dans ${mins >= 60 ? Math.floor(mins / 60) + ' h ' + pad(mins % 60) : mins + ' min'}` : (mins <= 0 ? ' · en cours' : '');
+    $('#cEv').innerHTML = `<div class="t">${esc(ev.t)}</div><div class="w">🕒 ${when}${soon}</div>${ev.l ? `<div class="w">📍 ${esc(ev.l)}</div>` : ''}`;
+    $('#cGo').hidden = !ev.l; $('#cGo').onclick = () => { window.location.href = navUrl(ev.l); };
+  }
+  $('#cHome').hidden = !cfg.homeAddr;
+}
+function setCar(on){
+  document.body.classList.toggle('car', on);
+  if (on){ renderCar(); keepAwake(); if (document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); }
+}
+$('#carBtn').onclick = () => setCar(true);
+$('#cExit').onclick = () => { setCar(false); if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); };
+$('#cPlay').onclick = togglePlay;
+$('#cPrev').onclick = () => stepStation(-1);
+$('#cNext').onclick = () => stepStation(1);
+$('#cHome').onclick = () => { if (cfg.homeAddr) window.location.href = navUrl(cfg.homeAddr); };
+$('#cNav').onclick = () => { window.location.href = cfg.navApp === 'waze' ? 'https://waze.com/ul' : 'https://www.google.com/maps/@?api=1&map_action=map'; };
+setInterval(renderCar, 15000);
+
 
 
 const FETES = [
@@ -995,7 +1275,8 @@ function renderEphem(){
     <div class="ep"><span class="l">📅 Jour ${doy}</span><span class="v">Sem. ${isoWeek(d)}</span><span class="s">${cal}</span></div></div>`;
 }
 
-renderTiles(); renderMusic(); renderBrief(); renderEphem(); renderAgenda();
+renderTiles(); renderMusic(); renderBrief(); renderEphem(); renderAgenda(); renderPlayer();
+if (cfg.carStart || /[?#&]voiture\b/.test(location.href)) setCar(true);
 loadAgenda(); setInterval(loadAgenda, 5 * 60000); setInterval(renderAgenda, 60000);
 setInterval(renderEphem, 10 * 60000);
 loadAll(); setInterval(loadAll, 15 * 60000);
@@ -1013,6 +1294,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden){ kee
 /* ================= Réglages ================= */
 function fillSettings(c){
   $('#sAgenda').value = c.agendaUrl || '';
+  $('#sHome').value = c.homeAddr || ''; $('#sNavApp').value = c.navApp || 'gmaps'; $('#sCarStart').checked = !!c.carStart;
   const old = cfg; cfg = c; document.querySelectorAll('[data-show]').forEach(i => { i.checked = vis(i.dataset.show); }); cfg = old;
   $('#sCity').value = c.city; $('#sDevice').value = c.device; $('#sFavs').value = (c.favs || []).join(', ');
   $('#sStream').value = c.radioStream || ''; $('#sNp').value = c.npUrl || '';
@@ -1027,7 +1309,8 @@ $('#save').onclick = () => {
   cfg.device = $('#sDevice').value.trim();
   cfg.favs = $('#sFavs').value.split(',').map(s => s.trim()).filter(Boolean);
   cfg.radioStream = $('#sStream').value.trim(); cfg.npUrl = $('#sNp').value.trim();
-  stopRadio(); loadNowPlaying();
+  if (P.st.id === 'rc' && P.playing) stopRadio(); loadNowPlaying();
+  cfg.homeAddr = $('#sHome').value.trim(); cfg.navApp = $('#sNavApp').value; cfg.carStart = $('#sCarStart').checked;
   cfg.show = {}; document.querySelectorAll('[data-show]').forEach(i => { cfg.show[i.dataset.show] = i.checked; });
   delete cfg.alwaysTiles;
   const agChanged = cfg.agendaUrl !== $('#sAgenda').value.trim();
