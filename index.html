@@ -40,7 +40,7 @@
   /* En-tête + onglets */
   header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:0 4px}
   .clock{font-size:40px;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
-  .date{font-size:15px;color:var(--muted);margin-top:3px;text-transform:capitalize}
+  .date{font-size:15px;color:var(--muted);margin-top:3px;text-transform:capitalize;white-space:nowrap}
   .tabs{justify-self:center;display:flex;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
   .tab{padding:9px 14px;border-radius:10px;font-size:15px;font-weight:600;color:var(--muted);white-space:nowrap}
   .tab.active{background:var(--accent);color:#fff}
@@ -95,7 +95,17 @@
 
   /* En bref */
   .brief{display:flex;flex-direction:column;gap:10px}
-  .today{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;text-align:left;width:100%}
+  .today{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;text-align:left;width:100%}
+  .homebus{display:block;width:100%;text-align:left;border-top:1px solid var(--line);padding-top:8px;flex:0 0 auto}
+  .homebus .hl{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;display:flex;justify-content:space-between}
+  .homebus .hl small{text-transform:none;letter-spacing:0;font-weight:400}
+  .hb-row{display:flex;align-items:baseline;gap:10px;font-size:14px;white-space:nowrap;padding:2px 0}
+  .hb-row .hd{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+  .hb-row .t{flex:0 0 auto}
+  .hb-row .t b{font-size:17px;font-variant-numeric:tabular-nums}
+  .hb-row .t small{color:var(--muted);font-size:12px;margin-right:8px}
+  .hb-row .t .lv{color:var(--good);font-size:11px}
+  @media (min-width:1150px) and (min-height:740px){ .hb-row{font-size:17px;padding:5px 0} .hb-row .t b{font-size:21px} .homebus .hl{font-size:14px} }
   .today h2{margin-bottom:6px}
   .today .ev{display:flex;align-items:center;gap:10px;padding:4px 0;font-size:15px;min-width:0}
   .today .ev .tm{flex:0 0 auto;width:62px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -109,6 +119,9 @@
   .bi .v{font-size:17px;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap}
   .bi .s{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dot{width:10px;height:10px}
+  .brief-grid.n5 .bi{padding:6px 7px}
+  .brief-grid.n5 .bi .l{font-size:10px;letter-spacing:0}
+  .brief-grid.n5 .bi .v{font-size:16px}
 
   /* Radios */
   #p-radios{grid-template-columns:1fr}
@@ -179,6 +192,21 @@
   .bus1{background:linear-gradient(135deg,#00563f,#00a86b)}
   .bus2{background:linear-gradient(135deg,#0b3d91,#2f80ed)}
   @media (max-width:760px){ .busbtns{grid-template-columns:1fr} .busbtn{min-height:100px} }
+
+  /* Prochains passages */
+  .deps{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .dir{background:var(--card2);border-radius:14px;padding:12px 14px}
+  .dir h3{font-size:14px;color:var(--muted);font-weight:600;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dir h3 b{color:var(--txt)}
+  .dep{display:flex;align-items:baseline;gap:12px;padding:6px 0;border-top:1px solid var(--line)}
+  .dep:first-of-type{border-top:0}
+  .dep .m{font-size:26px;font-weight:700;min-width:92px;flex:0 0 auto;font-variant-numeric:tabular-nums}
+  .dep .m small{font-size:14px;font-weight:600}
+  .dep .h{font-size:15px;color:var(--muted);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dep .rt{font-size:12px;white-space:nowrap;flex:0 0 auto}
+  .dep .rt.live{color:var(--good)}
+  .dep.first .m{color:var(--accent)}
+  @media (max-width:760px){ .deps{grid-template-columns:1fr} }
 
   /* Agenda */
   .agday{margin-bottom:12px}
@@ -333,7 +361,7 @@
     .app,.page,.col{gap:16px}
     .clock{font-size:56px}
     .date{font-size:18px}
-    .tab{font-size:17px;padding:11px 18px}
+    .tab{font-size:16px;padding:10px 13px}
     .icon-btn{width:50px;height:50px;font-size:22px}
     .card{padding:18px 20px;border-radius:20px}
     h2,.sub{font-size:14px}
@@ -416,6 +444,7 @@
       </section>
       <section class="card brief">
         <button class="today" id="today" data-tab="agenda"></button>
+        <button class="homebus" id="homeBus" data-tab="bus"></button>
         <div class="brief-grid" id="brief"></div>
       </section>
     </div>
@@ -450,15 +479,15 @@
 
   <!-- ===== Bus ===== -->
   <main class="page" id="p-bus">
-    <section class="card"><h2><span>DK'Bus · ligne C3 · arrêt Camping</span></h2>
+    <section class="card" style="overflow-y:auto"><h2><span>DK'Bus · ligne C3 · arrêt Camping</span><small id="busUpd"></small></h2>
+      <div id="busDeps"><div class="empty">Chargement des horaires…</div></div>
       <div class="busbtns">
         <button class="busbtn bus1" id="busHor"><span class="ic">🕒</span>
           <span><div class="t">Prochains passages</div><div class="s">Horaires en temps réel · dkbus.com</div></span></button>
         <button class="busbtn bus2" id="busMap"><span class="ic">🗺️</span>
           <span><div class="t">Bus en temps réel</div><div class="s">Position des bus sur la carte · dkbus.com</div></span></button>
       </div>
-      <p class="note">Les pages s'ouvrent dans le navigateur ; revenez au tableau de bord avec le bouton retour.
-        Astuce : si, après avoir choisi C3 et Camping, l'adresse de la page change, copiez-la dans ⚙︎ → « DK'Bus » pour arriver directement sur votre arrêt.</p>
+      <p class="note">Horaires lus sur dkbus.com via votre script Google, mis à jour chaque minute. 📡 = position réelle du bus · 🕒 = horaire théorique. Les boutons ouvrent le site DK'Bus dans le navigateur.</p>
     </section>
   </main>
 
@@ -519,6 +548,7 @@
       <label class="chk"><input type="checkbox" data-show="tide"> ⬆️ Marée</label>
       <label class="chk"><input type="checkbox" data-show="air"> 🌬️ Air</label>
       <label class="chk"><input type="checkbox" data-show="pollen"> 🌿 Pollens</label>
+      <label class="chk"><input type="checkbox" data-show="bus"> 🚌 Bus C3 (sous l'agenda)</label>
     </div>
 
     <h4>Remettre à zéro</h4>
@@ -570,6 +600,8 @@ const DEFAULTS = {
   device: 'Salon Ouest',
   agendaUrl: '',
   busHor: 'https://www.dkbus.com/horaires.php',
+  busApi: 'https://www.dkbus.com/functions/get_horaires.php',
+  busStops: ['1:561', '1:562'],
   busMap: 'https://www.dkbus.com/temps_reel.php',
   homeAddr: '',
   navApp: 'gmaps',
@@ -871,6 +903,7 @@ function renderBrief(){
   items.push({k:'pollen', tab:'health', l:'🌿 Pollens', v: pol, s: ps});
   const shown = items.filter(i => vis(i.k));
   $('#brief').style.display = shown.length ? '' : 'none';
+  $('#brief').classList.toggle('n5', shown.length >= 5);
   $('#brief').style.gridTemplateColumns = window.innerWidth <= 760 ? '' : `repeat(${shown.length || 1},1fr)`;
   $('#brief').innerHTML = shown.map(i => `<button class="bi" data-tab="${i.tab}"><span class="l">${i.l}</span><span class="v">${i.v}</span><span class="s">${esc(i.s)}</span></button>`).join('');
 }
@@ -941,12 +974,13 @@ function renderAgenda(){
   const tomorrow = evOn(S.agenda, t0 + DAY);
   let html = `<h2><span>📅 Aujourd'hui</span><small>${todays.length ? todays.length + ' rendez-vous' : ''} ›</small></h2>`;
   if (left.length){
-    html += left.slice(0, 4).map(e => `<div class="ev"><i class="cbar" style="background:${esc(e.c || '#4f9cff')}"></i><span class="tm">${evTime(e, t0)}</span><span class="ti">${esc(e.t)}</span></div>`).join('');
-    if (left.length > 4) html += `<div class="more">+ ${left.length - 4} autre(s)</div>`;
+    const MAXEV = window.innerWidth > 760 ? 2 : 3;
+    html += left.slice(0, MAXEV).map(e => `<div class="ev"><i class="cbar" style="background:${esc(e.c || '#4f9cff')}"></i><span class="tm">${evTime(e, t0)}</span><span class="ti">${esc(e.t)}</span></div>`).join('');
+    if (left.length > MAXEV && MAXEV === 3) html += `<div class="more">+ ${left.length - MAXEV} autre(s) aujourd'hui</div>`;
   } else {
     html += `<div class="ev"><span class="ti" style="color:var(--muted)">${todays.length ? 'Plus rien de prévu aujourd\'hui' : 'Rien de prévu aujourd\'hui'}</span></div>`;
   }
-  if (tomorrow.length && left.length < 3){
+  if (tomorrow.length && left.length < 2){
     const f = tomorrow[0];
     html += `<div class="more">Demain : ${f.a ? '' : hm(new Date(f.s)) + ' · '}${esc(f.t)}${tomorrow.length > 1 ? ' (+' + (tomorrow.length - 1) + ')' : ''}</div>`;
   }
@@ -1043,7 +1077,12 @@ const STATIONS = [
   {g:'Nationales', id:'jazz', name:'Jazz Radio', b:'Jazz', c:'#8b5a2b', q:'Jazz Radio'},
   {g:'Nationales', id:'mradio', name:'M Radio', b:'M', c:'#c2185b', q:'M Radio'},
   {g:'Nationales', id:'latina', name:'Latina', b:'Lat.', c:'#ff6f00', q:'Latina'},
-  {g:"Côte d'Opale", id:'delta', name:'Delta FM', sub:'Dunkerque', b:'Delta', c:'#0097a7', q:'Delta FM'},
+  {g:"Côte d'Opale", id:'delta', name:'Delta FM', sub:'Dunkerque', b:'Delta', c:'#0097a7', q:'Delta FM',
+    urls:['https://deltafmdunkerque.ice.infomaniak.ch/deltafmdunkerque-high.aac',
+          'https://deltafmdunkerque.ice.infomaniak.ch/deltafmdunkerque-high.mp3',
+          'https://deltafmdunkerque.ice.infomaniak.ch/deltafmdunkerque-128.mp3',
+          'https://deltafmdunkerque.ice.infomaniak.ch/deltafmdunkerque.mp3',
+          'https://streams.lesindesradios.fr/play/radios/delta-fm/jdP0HFY9vW/any/86400/17chnl.IwotDgXbcoggduOXKtYwe5E6P8P2qSKRHAiaNrqBtRw%3D?format=hd']},
   {g:"Côte d'Opale", id:'radio6', name:'Radio 6', sub:"Côte d'Opale", b:'Radio\n6', c:'#2e7d32', q:'Radio 6'},
 ];
 const stById = id => STATIONS.find(x => x.id === id) || STATIONS.find(x => x.id === 'rc');
@@ -1051,6 +1090,8 @@ const badge = (st, cls = '') => `<div class="badge ${cls}" style="background:${s
 const P = {audio: null, st: stById(cfg.lastStation), playing: false, busy: false};
 
 // Annuaire radio-browser.info (gratuit) : retrouve le flux https d'une station par son nom ; résultat gardé en mémoire.
+const OK_KEY = 'radio-stream-ok';   // dernière adresse qui a fonctionné, par station
+let okCache = {}; try { okCache = JSON.parse(localStorage.getItem(OK_KEY) || '{}'); } catch (e) {}
 const RB_KEY = 'radio-stream-cache';
 let rbCache = {}; try { rbCache = JSON.parse(localStorage.getItem(RB_KEY) || '{}'); } catch (e) {}
 async function rbLookup(st){
@@ -1079,13 +1120,20 @@ function stopRadio(){
 async function playStation(st){
   stopRadio(); P.st = st; P.busy = true; renderPlayer();
   cfg.lastStation = st.id; saveCfg();
-  const first = st.id === 'rc' ? cfg.radioStream : (rbCache[st.id] || st.url);
+  // adresses à essayer dans l'ordre : celle qui a marché la dernière fois, puis les adresses connues
+  const tried = new Set();
+  const cands = st.id === 'rc' ? [cfg.radioStream] : [okCache[st.id], ...(st.urls || []), st.url, rbCache[st.id]];
   let audio = null;
-  if (first){ try { audio = await tryPlay(first); } catch (e) {} }
-  if (!audio){ // adresse directe absente ou en panne : on cherche dans l'annuaire
-    const u = await rbLookup(st);
-    if (u && u !== first){ try { audio = await tryPlay(u); } catch (e) {} }
+  for (const u of cands){
+    if (!u || tried.has(u) || P.st !== st) continue;
+    tried.add(u);
+    try { audio = await tryPlay(u); okCache[st.id] = u; break; } catch (e) {}
   }
+  if (!audio && P.st === st){ // rien ne marche : on cherche dans l'annuaire
+    const u = await rbLookup(st);
+    if (u && !tried.has(u)){ try { audio = await tryPlay(u); okCache[st.id] = u; } catch (e) {} }
+  }
+  try { localStorage.setItem(OK_KEY, JSON.stringify(okCache)); } catch (e) {}
   if (P.st !== st){ if (audio) audio.pause(); return; } // l'utilisateur a changé de station entre-temps
   P.busy = false;
   if (!audio){ toast(st.name + ' : flux indisponible'); renderPlayer(); return; }
@@ -1162,14 +1210,6 @@ async function loadNowPlaying(){
   let t = null, hint = '';
   // 1) lecture directe sur le site de la radio
   try { t = pickTrack(await getJSON(withBust(cfg.npUrl))); S.npMode = 'direct'; } catch (e) { t = null; }
-  // 2) plan B : via le script Google de l'agenda (si le site interdit la lecture directe)
-  if ((!t || (!t.title && !t.composer)) && cfg.agendaUrl){
-    try {
-      const j = await getJSON(cfg.agendaUrl + (cfg.agendaUrl.includes('?') ? '&' : '?') + 'radio=1');
-      if (j && Array.isArray(j.events)) hint = ' (script Google à mettre à jour)';
-      else { t = pickTrack(j); S.npMode = 'script'; }
-    } catch (e) {}
-  }
   if (t && (t.title || t.composer)){
     S.np = {title: t.composer || t.title, sub: (t.composer ? t.title || '' : '') + (t.artist ? (t.composer && t.title ? ' · ' : '') + t.artist : '')};
   } else {
@@ -1311,6 +1351,96 @@ function renderEphem(){
 renderTiles(); renderMusic(); renderBrief(); renderEphem(); renderAgenda(); renderPlayer();
 if (cfg.carStart || /[?#&]voiture\b/.test(location.href)) setCar(true);
 loadAgenda(); setInterval(loadAgenda, 5 * 60000); setInterval(renderAgenda, 60000);
+
+/* ================= DK'Bus : prochains passages à l'arrêt Camping ================= */
+// Données au format OpenTripPlanner renvoyées par dkbus.com (heure = début de journée de service + secondes).
+const titleCase = x => x.toLowerCase().replace(/(^|[\s'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/\bDe\b/g, 'de');
+const fullDest = h => titleCase(String(h || '').replace(/^C3\s+/i, ''));
+const shortDest = h => fullDest(h).replace(/^(Coudekerque[- ]Branche|Dunkerque|Malo[- ]Les[- ]Bains|Leffrinckoucke)\s+/i, '');
+function minsTxt(t){
+  const m = Math.floor((t - Date.now()) / 60000);
+  if (m <= 0) return 'à l\'arrêt';
+  if (m < 60) return m + ' min';
+  return hm(new Date(t));
+}
+async function busFetch(stop, dayTs){
+  // dkbus.com n'autorise pas la lecture directe depuis un autre site : on passe par le script Google de l'agenda.
+  if (!cfg.agendaUrl){
+    const q = `?arret_id=${encodeURIComponent(stop)}&heure_now=${dayTs}&autre=1`;
+    try { const j = await getJSON(cfg.busApi + q); if (Array.isArray(j)) { S.busMode = 'direct'; return j; } } catch (e) {}
+    throw new Error('nécessite le script Google (⚙︎ → Agenda Google)');
+  }
+  {
+    const j = await getJSON(cfg.agendaUrl + (cfg.agendaUrl.includes('?') ? '&' : '?') + 'dkbus=' + encodeURIComponent(stop) + '&t=' + dayTs);
+    if (Array.isArray(j)) { S.busMode = 'script'; return j; }
+    if (j && Array.isArray(j.events)) throw new Error('script Google à mettre à jour');
+  }
+  throw new Error('réponse inattendue du script Google');
+}
+function busParse(data){
+  const out = [];
+  (data || []).forEach(p => (p.times || []).forEach(t => {
+    const sec = t.realtimeDeparture != null ? t.realtimeDeparture : t.scheduledDeparture;
+    out.push({t: (t.serviceDay + sec) * 1000, sched: (t.serviceDay + t.scheduledDeparture) * 1000,
+      live: !!t.realtime, delay: t.departureDelay || 0, dest: t.headsign || (p.pattern && p.pattern.desc) || ''});
+  }));
+  return out;
+}
+async function loadBus(){
+  const today = Math.floor(day0(Date.now()) / 1000), now = Date.now();
+  try{
+    const res = await Promise.all((cfg.busStops || []).map(async stop => {
+      let list = busParse(await busFetch(stop, today)).filter(d => d.t > now - 60000);
+      if (list.length < 3) list = list.concat(busParse(await busFetch(stop, today + 86400)).filter(d => d.t > now - 60000));
+      list.sort((a, b) => a.t - b.t);
+      return {stop, list};
+    }));
+    S.bus = res; S.busErr = null; S.busUpd = Date.now();
+  }catch(e){ S.busErr = e.message; }
+  renderBus();
+}
+function renderBus(){
+  const box = $('#busDeps');
+  const all = (S.bus || []).flatMap(x => x.list).filter(d => d.t > Date.now() - 30000).sort((a, b) => a.t - b.t);
+  S.busNext = all[0] || null;
+  if (!S.bus){
+    box.innerHTML = S.busErr ? `<div class="err">Horaires indisponibles : ${esc(S.busErr)}</div>` : '<div class="empty">Chargement des horaires…</div>';
+  } else {
+    $('#busUpd').textContent = S.busUpd ? 'màj ' + hm(new Date(S.busUpd)) : '';
+    box.innerHTML = '<div class="deps">' + S.bus.map(({list}) => {
+      const up = list.filter(d => d.t > Date.now() - 30000);
+      if (!up.length) return '<div class="dir"><div class="empty">Plus de passage prévu</div></div>';
+      const dests = [...new Set(up.slice(0, 4).map(d => shortDest(d.dest)))];
+      return `<div class="dir"><h3>Vers <b>${esc(dests.join(' / '))}</b></h3>` + up.slice(0, 4).map((d, i) => {
+        const late = d.live && d.delay >= 60 ? ` · +${Math.round(d.delay / 60)} min` : '';
+        return `<div class="dep${i === 0 ? ' first' : ''}"><span class="m">${minsTxt(d.t).replace(/ min$/, '<small> min</small>')}</span>
+          <span class="h">${hm(new Date(d.t))} · ${esc(shortDest(d.dest))}</span>
+          <span class="rt${d.live ? ' live' : ''}">${d.live ? '📡 temps réel' + late : '🕒 théorique'}</span></div>`;
+      }).join('') + '</div>';
+    }).join('') + '</div>' + (S.busErr ? `<p class="note">⚠️ Dernière mise à jour impossible : ${esc(S.busErr)}</p>` : '');
+  }
+  renderHomeBus();
+}
+// Accueil : les deux prochains passages dans chaque sens, sous l'agenda.
+function renderHomeBus(){
+  const box = $('#homeBus');
+  box.style.display = vis('bus') ? '' : 'none';
+  if (!vis('bus')) return;
+  let rows = '';
+  if (S.bus){
+    rows = S.bus.map(({list}) => {
+      const up = list.filter(d => d.t > Date.now() - 30000).slice(0, 2);
+      if (!up.length) return '';
+      return `<div class="hb-row"><span class="hd">→ ${esc(shortDest(up[0].dest))}</span><span class="t">` +
+        up.map(d => `<b>${minsTxt(d.t)}</b>${d.live ? ' <span class="lv">📡</span>' : ''} <small>${hm(new Date(d.t))}</small>`).join('') + '</span></div>';
+    }).join('') || '<div class="hb-row"><span class="hd">Plus de bus prévu</span></div>';
+  } else {
+    rows = `<div class="hb-row"><span class="hd">${S.busErr ? 'Horaires indisponibles' : 'Chargement…'}</span></div>`;
+  }
+  box.innerHTML = `<div class="hl"><span>🚌 C3 · Camping</span><small>›</small></div>` + rows;
+}
+$('#homeBus').addEventListener('click', () => showTab('bus'));
+loadBus(); setInterval(loadBus, 60000); setInterval(renderBus, 20000);
 setInterval(renderEphem, 10 * 60000);
 loadAll(); setInterval(loadAll, 15 * 60000);
 
@@ -1322,7 +1452,7 @@ $('#fullscreen').onclick = () => {
   keepAwake();
 };
 document.addEventListener('click', keepAwake, {once:true});
-document.addEventListener('visibilitychange', () => { if (!document.hidden){ keepAwake(); loadAll(); loadAgenda(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden){ keepAwake(); loadAll(); loadAgenda(); loadBus(); } });
 
 /* ================= Réglages ================= */
 function fillSettings(c){
@@ -1351,13 +1481,13 @@ $('#save').onclick = () => {
   cfg.agendaUrl = $('#sAgenda').value.trim();
   cfg.busHor = $('#sBusHor').value.trim() || DEFAULTS.busHor; cfg.busMap = $('#sBusMap').value.trim() || DEFAULTS.busMap;
   cfg.apps = {music:$('#sMusic').value.trim(), alexa:$('#sAlexa').value.trim(), tapo:$('#sTapo').value.trim(), mi:$('#sMi').value.trim()};
-  saveCfg(); renderTiles(); renderMusic(); renderBrief(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
+  saveCfg(); renderTiles(); renderMusic(); renderBrief(); renderHomeBus(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
   if (agChanged){ S.agenda = null; loadAgenda(); }
   if (cityChanged) loadAll();
 };
 $('#busHor').onclick = () => window.open(cfg.busHor || DEFAULTS.busHor, '_blank');
 $('#busMap').onclick = () => window.open(cfg.busMap || DEFAULTS.busMap, '_blank');
-$('#refresh').onclick = () => { loadAll(); loadAgenda(); toast('Actualisation…'); };
+$('#refresh').onclick = () => { loadAll(); loadAgenda(); loadBus(); toast('Actualisation…'); };
 </script>
 </body>
 </html>
