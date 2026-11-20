@@ -2,13 +2,13 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0f1420">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <title>Maison</title>
-<!-- Version pour tablette Amazon Fire HD 8 (12e gén., Fire OS 8, navigateur Silk), en paysage. -->
+<!-- Tableau de bord responsive : tablettes Android / Fire (paysage ou portrait) et smartphones Android. -->
 <style>
   :root{
     --bg:#0f1420; --card:#1a2131; --card2:#232c40; --line:#2c3650;
@@ -17,7 +17,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
   html,body{height:100%;background:var(--bg);color:var(--txt);
     font-family:"Amazon Ember",Roboto,"Segoe UI",Helvetica,Arial,sans-serif;user-select:none;overflow:hidden}
-  body{padding:12px 14px}
+  body{padding:12px 14px;padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
   button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 
   .app{height:100%;display:grid;gap:12px;grid-template-columns:1.05fr 1fr;grid-template-rows:auto 1fr;
@@ -76,12 +76,75 @@
 
   /* Commandes vocales */
   .voice{display:flex;flex-direction:column}
-  .voice-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;overflow-y:auto;flex:1;align-content:start}
+  .voice-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;overflow-y:auto;flex:1;align-content:start}
   .vc{background:var(--card2);border-radius:12px;padding:10px 12px}
   .vc .top{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;margin-bottom:6px}
   .vc .top .pi{font-size:22px}
   .vc .say{font-size:13px;color:var(--muted);line-height:1.5}
+  .vc .say span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .vc .say b{color:var(--alexa);font-weight:600}
+
+  /* ---------- Téléphones (portrait) et petits écrans : la page défile ---------- */
+  @media (max-width:760px), (max-height:480px){
+    html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+    .app{height:auto;grid-template-columns:1fr;grid-template-rows:auto;grid-template-areas:"head" "weather" "side"}
+    .side{grid-template-rows:auto auto}
+    .voice-list{overflow:visible}
+    .hours{-webkit-overflow-scrolling:touch}
+  }
+  /* Téléphone tenu en paysage : deux colonnes, mais la page défile */
+  @media (max-height:480px) and (min-width:700px){
+    .app{grid-template-columns:1.05fr 1fr;grid-template-areas:"head head" "weather side"}
+  }
+  @media (max-width:760px){
+    .clock{font-size:34px}
+    .date{font-size:14px}
+    .hello{display:none}
+    .icon-btn{width:40px;height:40px;font-size:18px}
+    .card{padding:12px}
+    .now .big{font-size:48px}
+    .now .temp{font-size:42px}
+    .meta span{font-size:12px;padding:5px 8px}
+    .h{width:50px;font-size:13px}
+    .d{font-size:13px}
+    .d .e{font-size:22px}
+    .tile{height:auto;min-height:76px;padding:10px 12px;gap:10px}
+    .tile .ic{font-size:28px}
+    .tile .t{font-size:16px}
+    .voice-list{grid-template-columns:1fr}
+    .row{grid-template-columns:44px 1fr 1fr 36px}
+  }
+  @media (max-width:360px){
+    .apps{grid-template-columns:1fr}
+  }
+
+  /* ---------- Grandes tablettes (ex. Galaxy Tab S5e en paysage) : tout en plus grand ---------- */
+  @media (min-width:1150px) and (min-height:740px){
+    body{padding:18px 22px}
+    .app,.side{gap:16px}
+    .clock{font-size:56px}
+    .date{font-size:18px}
+    .hello{font-size:20px}
+    .icon-btn{width:50px;height:50px;font-size:22px}
+    .card{padding:18px 20px;border-radius:20px}
+    h2,.sub{font-size:14px}
+    .now .big{font-size:84px}
+    .now .temp{font-size:70px}
+    .now .desc{font-size:18px}
+    .meta span{font-size:16px;padding:7px 12px}
+    .h{width:68px;font-size:17px;padding:12px 2px}
+    .h .e{font-size:30px}
+    .h .p{font-size:13px;height:16px}
+    .d{font-size:17px;padding:12px 2px}
+    .d .e{font-size:38px}
+    .tile{height:110px;padding:14px 20px;border-radius:18px}
+    .tile .ic{font-size:44px}
+    .tile .t{font-size:24px}
+    .tile .s{font-size:15px}
+    .vc{padding:14px 16px}
+    .vc .top{font-size:18px}
+    .vc .say{font-size:16px}
+  }
 
   /* Réglages */
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:14px}
@@ -99,8 +162,8 @@
   .btn{padding:12px 18px;border-radius:12px;background:var(--card2);font-weight:600;font-size:15px}
   .btn.primary{background:var(--accent);color:#fff}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(150px);background:var(--card2);border:1px solid var(--line);
-    padding:12px 20px;border-radius:12px;font-size:15px;transition:transform .25s;z-index:20}
-  .toast.show{transform:translateX(-50%) translateY(0)}
+    padding:12px 20px;border-radius:12px;font-size:15px;transition:transform .25s,opacity .25s;z-index:20;opacity:0;visibility:hidden}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
 </style>
 </head>
 <body>
@@ -152,7 +215,7 @@
     <input id="sCity" placeholder="ex. Lille">
 
     <h4>Liens des applications</h4>
-    <p class="hint">Laissez un champ vide pour masquer la tuile (par exemple si Tapo ou Xiaomi Home ne sont pas installées).</p>
+    <p class="hint">Chaque tuile ouvre l'application installée sur l'appareil. Laissez un champ vide pour masquer la tuile.</p>
     <label>Amazon Music</label><input id="sMusic">
     <label>Alexa</label><input id="sAlexa">
     <label>Tapo</label><input id="sTapo">
@@ -176,16 +239,15 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// Lance une application Android installée (Fire OS) ; si elle est absente, ouvre la page web de secours.
-function app(pkg, fallback){
-  return 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=' + pkg +
-    (fallback ? ';S.browser_fallback_url=' + encodeURIComponent(fallback) : '') + ';end';
+// Ouvre l'application Android installée (Fire OS, Android). Si elle est absente, Android propose sa page dans le store.
+function app(pkg){
+  return 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=' + pkg + ';end';
 }
 const DEFAULTS = {
   city: '',
   apps: {
-    music: app('com.amazon.mp3', 'https://music.amazon.fr'),
-    alexa: app('com.amazon.dee.app', 'https://alexa.amazon.fr'),
+    music: app('com.amazon.mp3'),
+    alexa: app('com.amazon.dee.app'),
     tapo:  app('com.tplink.iot'),
     mi:    app('com.xiaomi.smarthome')
   },
@@ -198,6 +260,7 @@ const KEY = 'fire-dashboard-v1';
 const HOME = {lat:51.0530, lon:2.4040, name:'Malo-les-Bains · Dunkerque'};
 let cfg = JSON.parse(JSON.stringify(DEFAULTS));
 try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) cfg = Object.assign(cfg, s, {apps:Object.assign({}, cfg.apps, s.apps)}); } catch (e) {}
+Object.keys(cfg.apps).forEach(k => { if (cfg.apps[k]) cfg.apps[k] = cfg.apps[k].replace(/;S\.browser_fallback_url=[^;]*/, ''); });
 const saveCfg = () => { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} };
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -287,7 +350,7 @@ document.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () =
 function renderPlugs(){
   $('#voiceCard').style.display = cfg.plugs.length ? '' : 'none';
   $('#voiceList').innerHTML = cfg.plugs.map(p => `<div class="vc"><div class="top"><span class="pi">${esc(p.icon || '🔌')}</span>${esc(p.name)}</div>
-    <div class="say">« <b>Alexa</b>, allume ${esc(p.alexa || p.name)} »<br>« <b>Alexa</b>, éteins ${esc(p.alexa || p.name)} »</div></div>`).join('');
+    <div class="say"><span>« <b>Alexa</b>, allume ${esc(p.alexa || p.name)} »</span><span>« <b>Alexa</b>, éteins ${esc(p.alexa || p.name)} »</span></div></div>`).join('');
 }
 renderTiles(); renderPlugs();
 
