@@ -297,7 +297,10 @@
     <input id="sFavs" placeholder="ex. Radio Classique, FIP, de la musique relaxante">
 
     <h4>Liens des applications</h4>
-    <p class="hint">Chaque tuile ouvre l'application installée. Laissez un champ vide pour masquer la tuile. Les tuiles s'affichent seulement sur les tablettes Fire (Silk) et dans Fully Kiosk : Chrome et Brave ne savent pas ouvrir ces applications.</p>
+    <label style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--txt);margin:6px 0 10px">
+      <input type="checkbox" id="sAlways" style="width:22px;height:22px;flex:0 0 auto"> Toujours afficher les tuiles
+    </label>
+    <p class="hint">Chaque tuile ouvre l'application installée. Laissez un champ vide pour masquer la tuile. Sans l'option ci-dessus, les tuiles s'affichent seulement sur les tablettes Fire (Silk) et dans Fully Kiosk. Avec l'option, elles s'affichent partout, mais dans Chrome et Brave certaines ouvrent le Play Store au lieu de l'application.</p>
     <label>Amazon Music</label><input id="sMusic">
     <label>Alexa</label><input id="sAlexa">
     <label>Tapo</label><input id="sTapo">
@@ -323,6 +326,7 @@ function app(pkg){
 const DEFAULTS = {
   city: '',
   device: 'Salon Ouest',
+  alwaysTiles: false,
   favs: ['Radio Classique', 'de la musique classique', 'de la musique relaxante'],
   apps: {
     music: app('com.amazon.mp3'),
@@ -619,7 +623,7 @@ $('#brief').addEventListener('click', e => { const b = e.target.closest('.bi'); 
 function renderMusic(){
   const dev = (cfg.device || '').trim() || 'mon enceinte';
   const sur = ` sur ${esc(dev)}`;
-  const tileUrl = CAN_LAUNCH_APPS && cfg.apps.music;
+  const tileUrl = tilesAllowed() && cfg.apps.music;
   $('#musicMain').innerHTML = `<h2>Musique</h2>
     <div class="device"><span class="ic">🔊</span><div><div class="n">${esc(dev)}</div><div class="s">Enceinte Alexa</div></div></div>
     ${tileUrl ? `<button class="tile music bigmusic" data-app="music"><span class="ic">🎵</span>
@@ -642,9 +646,10 @@ function renderMusic(){
 /* ================= Tuiles d'applications ================= */
 // Chrome, Brave… ouvrent le Play Store au lieu de l'application : tuiles visibles seulement dans Silk (Fire) et Fully Kiosk.
 const CAN_LAUNCH_APPS = /Silk/i.test(navigator.userAgent) || !!window.fully;
+const tilesAllowed = () => CAN_LAUNCH_APPS || !!cfg.alwaysTiles;
 function renderTiles(){
   document.querySelectorAll('.apps .tile').forEach(t => { t.hidden = !cfg.apps[t.dataset.app]; });
-  const show = CAN_LAUNCH_APPS && [...document.querySelectorAll('.apps .tile')].some(t => !t.hidden);
+  const show = tilesAllowed() && [...document.querySelectorAll('.apps .tile')].some(t => !t.hidden);
   $('.apps').style.display = show ? '' : 'none';
   $('#p-home .col').style.gridTemplateRows = show ? 'auto 1fr' : '1fr';
 }
@@ -682,6 +687,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden){ kee
 
 /* ================= Réglages ================= */
 function fillSettings(c){
+  $('#sAlways').checked = !!c.alwaysTiles;
   $('#sCity').value = c.city; $('#sDevice').value = c.device; $('#sFavs').value = (c.favs || []).join(', ');
   $('#sMusic').value = c.apps.music; $('#sAlexa').value = c.apps.alexa; $('#sTapo').value = c.apps.tapo; $('#sMi').value = c.apps.mi;
 }
@@ -693,6 +699,7 @@ $('#save').onclick = () => {
   cfg.city = $('#sCity').value;
   cfg.device = $('#sDevice').value.trim();
   cfg.favs = $('#sFavs').value.split(',').map(s => s.trim()).filter(Boolean);
+  cfg.alwaysTiles = $('#sAlways').checked;
   cfg.apps = {music:$('#sMusic').value.trim(), alexa:$('#sAlexa').value.trim(), tapo:$('#sTapo').value.trim(), mi:$('#sMi').value.trim()};
   saveCfg(); renderTiles(); renderMusic(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
   if (cityChanged) loadAll();
