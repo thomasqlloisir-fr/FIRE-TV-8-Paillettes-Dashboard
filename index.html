@@ -168,6 +168,18 @@
     .c-st .badge{width:56px;height:56px} .c-st .n{font-size:22px} .c-ev .t{font-size:21px} .c-btns button{height:60px;font-size:18px}
   }
 
+  /* Bus */
+  #p-bus{grid-template-columns:1fr}
+  .busbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  .busbtn{border-radius:18px;padding:22px;text-align:left;color:#fff;display:flex;align-items:center;gap:18px;min-height:130px}
+  .busbtn:active{opacity:.75}
+  .busbtn .ic{font-size:52px;line-height:1}
+  .busbtn .t{font-size:24px;font-weight:700}
+  .busbtn .s{font-size:14px;opacity:.85;margin-top:4px}
+  .bus1{background:linear-gradient(135deg,#00563f,#00a86b)}
+  .bus2{background:linear-gradient(135deg,#0b3d91,#2f80ed)}
+  @media (max-width:760px){ .busbtns{grid-template-columns:1fr} .busbtn{min-height:100px} }
+
   /* Agenda */
   .agday{margin-bottom:12px}
   .agday h3{font-size:14px;color:var(--muted);margin-bottom:6px;font-weight:600}
@@ -365,6 +377,7 @@
       <button class="tab" data-tab="musicp">🎵<span class="tl"> Musique</span></button>
       <button class="tab" data-tab="agenda">📅<span class="tl"> Agenda</span></button>
       <button class="tab" data-tab="radios">📻<span class="tl"> Radios</span></button>
+      <button class="tab" data-tab="bus">🚌<span class="tl"> Bus</span></button>
     </nav>
     <div class="hd-right">
       <button class="icon-btn" id="carBtn" title="Mode voiture">🚗</button>
@@ -435,6 +448,20 @@
     </section>
   </main>
 
+  <!-- ===== Bus ===== -->
+  <main class="page" id="p-bus">
+    <section class="card"><h2><span>DK'Bus · ligne C3 · arrêt Camping</span></h2>
+      <div class="busbtns">
+        <button class="busbtn bus1" id="busHor"><span class="ic">🕒</span>
+          <span><div class="t">Prochains passages</div><div class="s">Horaires en temps réel · dkbus.com</div></span></button>
+        <button class="busbtn bus2" id="busMap"><span class="ic">🗺️</span>
+          <span><div class="t">Bus en temps réel</div><div class="s">Position des bus sur la carte · dkbus.com</div></span></button>
+      </div>
+      <p class="note">Les pages s'ouvrent dans le navigateur ; revenez au tableau de bord avec le bouton retour.
+        Astuce : si, après avoir choisi C3 et Camping, l'adresse de la page change, copiez-la dans ⚙︎ → « DK'Bus » pour arriver directement sur votre arrêt.</p>
+    </section>
+  </main>
+
   <!-- ===== Agenda ===== -->
   <main class="page" id="p-agenda">
     <section class="card scroll" id="agNear"><h2>Agenda</h2></section>
@@ -469,6 +496,10 @@
       <option value="gmaps">Google Maps</option><option value="waze">Waze</option>
     </select>
     <label class="chk"><input type="checkbox" id="sCarStart"> Ouvrir directement en mode voiture sur cet appareil</label>
+
+    <h4>DK'Bus</h4>
+    <label>Page des horaires</label><input id="sBusHor">
+    <label>Page des bus en temps réel</label><input id="sBusMap">
 
     <h4>Agenda Google</h4>
     <p class="hint">Adresse de votre script Google (elle se termine par /exec). Elle reste enregistrée sur cet appareil uniquement : ne la partagez pas.</p>
@@ -538,6 +569,8 @@ const DEFAULTS = {
   city: '',
   device: 'Salon Ouest',
   agendaUrl: '',
+  busHor: 'https://www.dkbus.com/horaires.php',
+  busMap: 'https://www.dkbus.com/temps_reel.php',
   homeAddr: '',
   navApp: 'gmaps',
   carStart: false,
@@ -1294,6 +1327,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden){ kee
 /* ================= Réglages ================= */
 function fillSettings(c){
   $('#sAgenda').value = c.agendaUrl || '';
+  $('#sBusHor').value = c.busHor || ''; $('#sBusMap').value = c.busMap || '';
   $('#sHome').value = c.homeAddr || ''; $('#sNavApp').value = c.navApp || 'gmaps'; $('#sCarStart').checked = !!c.carStart;
   const old = cfg; cfg = c; document.querySelectorAll('[data-show]').forEach(i => { i.checked = vis(i.dataset.show); }); cfg = old;
   $('#sCity').value = c.city; $('#sDevice').value = c.device; $('#sFavs').value = (c.favs || []).join(', ');
@@ -1315,11 +1349,14 @@ $('#save').onclick = () => {
   delete cfg.alwaysTiles;
   const agChanged = cfg.agendaUrl !== $('#sAgenda').value.trim();
   cfg.agendaUrl = $('#sAgenda').value.trim();
+  cfg.busHor = $('#sBusHor').value.trim() || DEFAULTS.busHor; cfg.busMap = $('#sBusMap').value.trim() || DEFAULTS.busMap;
   cfg.apps = {music:$('#sMusic').value.trim(), alexa:$('#sAlexa').value.trim(), tapo:$('#sTapo').value.trim(), mi:$('#sMi').value.trim()};
   saveCfg(); renderTiles(); renderMusic(); renderBrief(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
   if (agChanged){ S.agenda = null; loadAgenda(); }
   if (cityChanged) loadAll();
 };
+$('#busHor').onclick = () => window.open(cfg.busHor || DEFAULTS.busHor, '_blank');
+$('#busMap').onclick = () => window.open(cfg.busMap || DEFAULTS.busMap, '_blank');
 $('#refresh').onclick = () => { loadAll(); loadAgenda(); toast('Actualisation…'); };
 </script>
 </body>
