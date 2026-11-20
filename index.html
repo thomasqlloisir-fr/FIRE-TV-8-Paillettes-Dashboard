@@ -436,7 +436,7 @@ const DEFAULTS = {
   show: {},
   radioStream: 'https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3',
   radioPage: 'https://www.radioclassique.fr/direct-radio/',
-  npUrl: '',
+  npUrl: 'https://www.radioclassique.fr/direct-metadata/current.json',
   favs: ['Radio Classique', 'de la musique classique', 'de la musique relaxante'],
   apps: {
     music: app('com.amazon.mp3'),
@@ -453,6 +453,7 @@ try {
   if (s) cfg = Object.assign(cfg, s, {apps:Object.assign({}, cfg.apps, s.apps)});
 } catch (e) {}
 delete cfg.plugs; // ancien bloc « prises », supprimé
+if (!cfg.npUrl) cfg.npUrl = DEFAULTS.npUrl;
 Object.keys(cfg.apps).forEach(k => { if (cfg.apps[k]) cfg.apps[k] = cfg.apps[k].replace(/;S\.browser_fallback_url=[^;]*/, ''); });
 const saveCfg = () => { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} };
 
@@ -901,16 +902,27 @@ function pickTrack(obj){
   })(obj, 0);
   return found;
 }
+const withBust = u => u + (u.includes('?') ? '&' : '?') + '_=' + Date.now();
 async function loadNowPlaying(){
   if (!cfg.npUrl){ $('#npTitle').textContent = 'Musique classique en direct'; $('#npSub').textContent = 'Écoutez ici avec ▶ ou dites « Alexa, joue Radio Classique »'; return; }
-  try{
-    const t = pickTrack(await getJSON(cfg.npUrl));
-    if (!t.title && !t.composer) throw new Error('vide');
+  let t = null, hint = '';
+  // 1) lecture directe sur le site de la radio
+  try { t = pickTrack(await getJSON(withBust(cfg.npUrl))); S.npMode = 'direct'; } catch (e) { t = null; }
+  // 2) plan B : via le script Google de l'agenda (si le site interdit la lecture directe)
+  if ((!t || (!t.title && !t.composer)) && cfg.agendaUrl){
+    try {
+      const j = await getJSON(cfg.agendaUrl + (cfg.agendaUrl.includes('?') ? '&' : '?') + 'radio=1');
+      if (j && Array.isArray(j.events)) hint = ' (script Google à mettre à jour)';
+      else { t = pickTrack(j); S.npMode = 'script'; }
+    } catch (e) {}
+  }
+  if (t && (t.title || t.composer)){
     $('#npTitle').textContent = t.composer || t.title;
     $('#npSub').textContent = (t.composer ? t.title || '' : '') + (t.artist ? (t.composer && t.title ? ' · ' : '') + t.artist : '');
-  }catch(e){
+  } else {
+    S.npMode = 'erreur';
     $('#npTitle').textContent = 'Musique classique en direct';
-    $('#npSub').textContent = 'Morceau en cours indisponible pour le moment';
+    $('#npSub').textContent = 'Morceau en cours indisponible' + hint;
   }
 }
 loadNowPlaying(); setInterval(loadNowPlaying, 60000);
