@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1420">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>Maison</title>
+<!-- Version pour tablette Amazon Fire HD 8 (12e gén., Fire OS 8, navigateur Silk), en paysage. -->
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2131; --card2:#232c40; --line:#2c3650;
+    --txt:#eef2fa; --muted:#97a3bd; --accent:#4f9cff; --alexa:#31c4f3;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--txt);
+    font-family:"Amazon Ember",Roboto,"Segoe UI",Helvetica,Arial,sans-serif;user-select:none;overflow:hidden}
+  body{padding:12px 14px}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+
+  .app{height:100%;display:grid;gap:12px;grid-template-columns:1.05fr 1fr;grid-template-rows:auto 1fr;
+    grid-template-areas:"head head" "weather side"}
+  .side{grid-area:side;display:grid;gap:12px;grid-template-rows:auto 1fr;min-height:0}
+  @media (orientation:portrait){
+    .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;grid-template-areas:"head" "weather" "side"}
+  }
+  .card{background:var(--card);border-radius:16px;padding:12px 14px;border:1px solid var(--line);min-height:0;overflow:hidden}
+  h2{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
+    display:flex;justify-content:space-between;align-items:center}
+  h2 small{text-transform:none;letter-spacing:0;font-weight:400;font-size:12px}
+
+  header{grid-area:head;display:flex;justify-content:space-between;align-items:center;padding:0 4px}
+  .clock{font-size:40px;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
+  .date{font-size:15px;color:var(--muted);margin-top:3px;text-transform:capitalize}
+  .hd-right{display:flex;align-items:center;gap:8px}
+  .hello{font-size:16px;color:var(--muted);margin-right:4px}
+  .icon-btn{width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:19px}
+
+  /* Météo */
+  .weather{grid-area:weather;display:flex;flex-direction:column;justify-content:space-between}
+  .now{display:flex;align-items:center;gap:14px}
+  .now .big{font-size:56px;line-height:1}
+  .now .temp{font-size:48px;font-weight:300;line-height:1}
+  .now .desc{font-size:14px;color:var(--muted);margin-top:3px}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .meta span{background:var(--card2);border-radius:9px;padding:5px 9px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--txt);font-weight:600}
+  .sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 6px}
+  .hours{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .hours::-webkit-scrollbar{display:none}
+  .h{flex:0 0 auto;width:54px;text-align:center;background:var(--card2);border-radius:10px;padding:8px 2px;font-size:14px}
+  .h .e{font-size:22px;margin:4px 0}
+  .h .p{color:var(--accent);font-size:11px;height:13px;margin-top:2px}
+  .days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .d{background:var(--card2);border-radius:10px;padding:8px 2px;text-align:center;font-size:14px}
+  .d .n{color:var(--muted);text-transform:capitalize}
+  .d .e{font-size:26px;margin:4px 0}
+  .d .mm span{color:var(--muted)}
+  .err{color:#e5484d;font-size:14px;line-height:1.4}
+  .empty{color:var(--muted);font-size:14px;line-height:1.5}
+
+  /* Tuiles */
+  .apps{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+  .tile{border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:12px;text-align:left;color:#fff;height:80px}
+  .tile:active{opacity:.75}
+  .tile .ic{font-size:32px;line-height:1}
+  .tile .t{font-size:18px;font-weight:700;line-height:1.15}
+  .tile .s{font-size:12px;opacity:.85;margin-top:2px}
+  .tile[hidden]{display:none}
+  .music{background:linear-gradient(135deg,#0b4f6c,#25d1da)}
+  .alexa{background:linear-gradient(135deg,#0a3d62,#31c4f3)}
+  .tapo{background:linear-gradient(135deg,#1b5e20,#4caf50)}
+  .mi{background:linear-gradient(135deg,#b33c00,#ff6900)}
+
+  /* Commandes vocales */
+  .voice{display:flex;flex-direction:column}
+  .voice-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;overflow-y:auto;flex:1;align-content:start}
+  .vc{background:var(--card2);border-radius:12px;padding:10px 12px}
+  .vc .top{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;margin-bottom:6px}
+  .vc .top .pi{font-size:22px}
+  .vc .say{font-size:13px;color:var(--muted);line-height:1.5}
+  .vc .say b{color:var(--alexa);font-weight:600}
+
+  /* Réglages */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:14px}
+  .modal.open{display:flex}
+  .sheet{background:var(--card);border:1px solid var(--line);border-radius:20px;width:100%;max-width:720px;max-height:100%;overflow-y:auto;padding:20px;user-select:text}
+  .sheet h3{font-size:20px;margin-bottom:4px}
+  .sheet h4{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 6px}
+  .sheet p.hint{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:6px}
+  .sheet label{display:block;font-size:13px;color:var(--muted);margin:8px 0 4px}
+  .sheet input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:15px}
+  .row{display:grid;grid-template-columns:56px 1fr 1fr 40px;gap:6px;align-items:center;margin-bottom:6px}
+  .row input{padding:9px 8px}
+  .del{background:rgba(229,72,77,.18);color:#e5484d;border-radius:10px;height:40px;font-size:17px}
+  .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+  .btn{padding:12px 18px;border-radius:12px;background:var(--card2);font-weight:600;font-size:15px}
+  .btn.primary{background:var(--accent);color:#fff}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(150px);background:var(--card2);border:1px solid var(--line);
+    padding:12px 20px;border-radius:12px;font-size:15px;transition:transform .25s;z-index:20}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="clock" id="clock">--:--</div>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="hd-right">
+      <div class="hello" id="hello"></div>
+      <button class="icon-btn" id="fullscreen" title="Plein écran">⛶</button>
+      <button class="icon-btn" id="refresh" title="Actualiser">↻</button>
+      <button class="icon-btn" id="openSettings" title="Réglages">⚙︎</button>
+    </div>
+  </header>
+
+  <section class="card weather" id="weather">
+    <h2>Météo</h2>
+    <div class="empty">Chargement de la météo…</div>
+  </section>
+
+  <div class="side">
+    <section class="apps">
+      <button class="tile music" data-app="music"><span class="ic">🎵</span>
+        <span><div class="t">Amazon Music</div><div class="s">Ouvrir la musique</div></span></button>
+      <button class="tile alexa" data-app="alexa"><span class="ic">💬</span>
+        <span><div class="t">Alexa</div><div class="s">Maison connectée</div></span></button>
+      <button class="tile tapo" data-app="tapo"><span class="ic">🔌</span>
+        <span><div class="t">Tapo</div><div class="s">Prises connectées</div></span></button>
+      <button class="tile mi" data-app="mi"><span class="ic">🏠</span>
+        <span><div class="t">Xiaomi Home</div><div class="s">Appareils Mi</div></span></button>
+    </section>
+
+    <section class="card voice" id="voiceCard">
+      <h2>Prises — commandes Alexa</h2>
+      <div class="voice-list" id="voiceList"></div>
+    </section>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h3>Réglages</h3>
+    <p class="hint">Enregistrés sur cette tablette uniquement.</p>
+
+    <h4>Météo</h4>
+    <label>Autre ville (laisser vide pour Malo-les-Bains, Dunkerque)</label>
+    <input id="sCity" placeholder="ex. Lille">
+
+    <h4>Liens des applications</h4>
+    <p class="hint">Laissez un champ vide pour masquer la tuile (par exemple si Tapo ou Xiaomi Home ne sont pas installées).</p>
+    <label>Amazon Music</label><input id="sMusic">
+    <label>Alexa</label><input id="sAlexa">
+    <label>Tapo</label><input id="sTapo">
+    <label>Xiaomi Home</label><input id="sMi">
+
+    <h4>Prises</h4>
+    <p class="hint">Indiquez le nom de chaque prise tel qu'il apparaît dans l'app Alexa. Supprimez toutes les prises pour masquer ce bloc.</p>
+    <div class="row" style="color:var(--muted);font-size:12px"><span>Icône</span><span>Nom affiché</span><span>Nom dans Alexa</span><span></span></div>
+    <div id="sPlugs"></div>
+    <button class="btn" id="addPlug">＋ Ajouter une prise</button>
+
+    <h4>Remettre à zéro</h4>
+    <button class="btn" id="reset">Revenir aux réglages d'origine</button>
+
+    <div class="actions">
+      <button class="btn" id="cancel">Annuler</button>
+      <button class="btn primary" id="save">Enregistrer</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// Lance une application Android installée (Fire OS) ; si elle est absente, ouvre la page web de secours.
+function app(pkg, fallback){
+  return 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=' + pkg +
+    (fallback ? ';S.browser_fallback_url=' + encodeURIComponent(fallback) : '') + ';end';
+}
+const DEFAULTS = {
+  city: '',
+  apps: {
+    music: app('com.amazon.mp3', 'https://music.amazon.fr'),
+    alexa: app('com.amazon.dee.app', 'https://alexa.amazon.fr'),
+    tapo:  app('com.tplink.iot'),
+    mi:    app('com.xiaomi.smarthome')
+  },
+  plugs: [
+    {icon:'⚡', name:'Prise P110', alexa:'la prise P110'},
+    {icon:'🔌', name:'Prise P100', alexa:'la prise P100'}
+  ]
+};
+const KEY = 'fire-dashboard-v1';
+const HOME = {lat:51.0530, lon:2.4040, name:'Malo-les-Bains · Dunkerque'};
+let cfg = JSON.parse(JSON.stringify(DEFAULTS));
+try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) cfg = Object.assign(cfg, s, {apps:Object.assign({}, cfg.apps, s.apps)}); } catch (e) {}
+const saveCfg = () => { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} };
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => (n < 10 ? '0' : '') + n;
+const hm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
+
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200); }
+
+/* ---------- Horloge ---------- */
+const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const JOURS_C = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function tick(){
+  const d = new Date(), h = d.getHours();
+  $('#clock').textContent = hm(d);
+  $('#date').textContent = JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()];
+  $('#hello').textContent = h < 6 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+}
+tick(); setInterval(tick, 5000);
+
+/* ---------- Météo (Open-Meteo, gratuit, sans clé) ---------- */
+const WMO = {0:['☀️','Ensoleillé'],1:['🌤️','Plutôt ensoleillé'],2:['⛅','Partiellement nuageux'],3:['☁️','Couvert'],
+  45:['🌫️','Brouillard'],48:['🌫️','Brouillard givrant'],51:['🌦️','Bruine légère'],53:['🌦️','Bruine'],55:['🌧️','Bruine forte'],
+  56:['🌧️','Bruine verglaçante'],57:['🌧️','Bruine verglaçante'],61:['🌦️','Pluie faible'],63:['🌧️','Pluie'],65:['🌧️','Pluie forte'],
+  66:['🌧️','Pluie verglaçante'],67:['🌧️','Pluie verglaçante'],71:['🌨️','Neige faible'],73:['🌨️','Neige'],75:['❄️','Neige forte'],
+  77:['🌨️','Grains de neige'],80:['🌦️','Averses'],81:['🌧️','Averses'],82:['⛈️','Fortes averses'],85:['🌨️','Averses de neige'],
+  86:['❄️','Fortes averses de neige'],95:['⛈️','Orage'],96:['⛈️','Orage et grêle'],99:['⛈️','Orage violent']};
+function wmo(c, night){ const w = WMO[c] || ['❔','—']; return (night && c <= 1) ? ['🌙', c === 0 ? 'Dégagé' : w[1]] : w; }
+const getJSON = url => fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+
+async function locate(){
+  const city = (cfg.city || '').trim();
+  if (!city) return HOME;
+  const j = await getJSON('https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&name=' + encodeURIComponent(city));
+  if (!j.results || !j.results.length) throw new Error('Ville introuvable : ' + city);
+  return {lat:j.results[0].latitude, lon:j.results[0].longitude, name:j.results[0].name};
+}
+
+async function loadWeather(){
+  const box = $('#weather');
+  try{
+    const loc = await locate();
+    const w = await getJSON('https://api.open-meteo.com/v1/forecast?latitude=' + loc.lat + '&longitude=' + loc.lon +
+      '&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day' +
+      '&hourly=temperature_2m,weather_code,precipitation_probability,is_day' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset' +
+      '&timezone=auto&timeformat=unixtime&forecast_days=6');
+    const c = w.current, cur = wmo(c.weather_code, !c.is_day), H = w.hourly, D = w.daily;
+    const now = Date.now() / 1000;
+    let start = H.time.findIndex(t => t >= now - 3600); if (start < 0) start = 0;
+    let hours = '';
+    for (let k = start; k < Math.min(start + 12, H.time.length); k++){
+      const p = H.precipitation_probability[k];
+      hours += `<div class="h"><div>${k === start ? 'Maint.' : new Date(H.time[k]*1000).getHours() + 'h'}</div>
+        <div class="e">${wmo(H.weather_code[k], !H.is_day[k])[0]}</div>
+        <div>${Math.round(H.temperature_2m[k])}°</div><div class="p">${p >= 20 ? p + '%' : ''}</div></div>`;
+    }
+    let days = '';
+    for (let j = 1; j <= 5 && j < D.time.length; j++){
+      const dd = new Date((D.time[j] + 12*3600) * 1000);
+      days += `<div class="d"><div class="n">${JOURS_C[dd.getDay()]}</div><div class="e">${wmo(D.weather_code[j])[0]}</div>
+        <div class="mm">${Math.round(D.temperature_2m_max[j])}° <span>${Math.round(D.temperature_2m_min[j])}°</span></div></div>`;
+    }
+    box.innerHTML = `<div><h2><span>${esc(loc.name)}</span><small>màj ${hm(new Date())}</small></h2>
+      <div class="now"><div class="big">${cur[0]}</div>
+        <div><div class="temp">${Math.round(c.temperature_2m)}°</div><div class="desc">${cur[1]} · ressenti ${Math.round(c.apparent_temperature)}°</div></div></div>
+      <div class="meta"><span>↑ <b>${Math.round(D.temperature_2m_max[0])}°</b> ↓ <b>${Math.round(D.temperature_2m_min[0])}°</b></span>
+        <span>💧 <b>${c.relative_humidity_2m}%</b></span><span>💨 <b>${Math.round(c.wind_speed_10m)} km/h</b></span>
+        <span>🌅 <b>${hm(new Date(D.sunrise[0]*1000))}</b> 🌇 <b>${hm(new Date(D.sunset[0]*1000))}</b></span></div></div>
+      <div><div class="sub">Prochaines heures</div><div class="hours">${hours}</div></div>
+      <div><div class="sub">5 prochains jours</div><div class="days">${days}</div></div>`;
+  }catch(e){
+    box.innerHTML = `<h2>Météo</h2><div class="err">Impossible de charger la météo : ${esc(e.message)}<br>Vérifiez le Wi-Fi puis touchez ↻.</div>`;
+  }
+}
+loadWeather(); setInterval(loadWeather, 15 * 60000);
+
+/* ---------- Tuiles ---------- */
+function renderTiles(){
+  document.querySelectorAll('.tile').forEach(t => { t.hidden = !cfg.apps[t.dataset.app]; });
+}
+document.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () => {
+  const url = cfg.apps[t.dataset.app]; if (url) window.location.href = url;
+}));
+
+/* ---------- Commandes vocales des prises ---------- */
+function renderPlugs(){
+  $('#voiceCard').style.display = cfg.plugs.length ? '' : 'none';
+  $('#voiceList').innerHTML = cfg.plugs.map(p => `<div class="vc"><div class="top"><span class="pi">${esc(p.icon || '🔌')}</span>${esc(p.name)}</div>
+    <div class="say">« <b>Alexa</b>, allume ${esc(p.alexa || p.name)} »<br>« <b>Alexa</b>, éteins ${esc(p.alexa || p.name)} »</div></div>`).join('');
+}
+renderTiles(); renderPlugs();
+
+/* ---------- Plein écran et écran toujours allumé ---------- */
+let wakeLock = null;
+async function keepAwake(){
+  try { if ('wakeLock' in navigator && !document.hidden) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+}
+$('#fullscreen').onclick = () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  keepAwake();
+};
+document.addEventListener('click', keepAwake, {once:true});
+document.addEventListener('visibilitychange', () => { if (!document.hidden){ keepAwake(); loadWeather(); } });
+
+/* ---------- Réglages ---------- */
+function plugRow(p){
+  p = p || {icon:'🔌', name:'', alexa:''};
+  const d = document.createElement('div'); d.className = 'row';
+  d.innerHTML = `<input value="${esc(p.icon)}" data-k="icon"><input value="${esc(p.name)}" data-k="name" placeholder="Nom affiché">
+    <input value="${esc(p.alexa)}" data-k="alexa" placeholder="Nom dans Alexa"><button class="del">✕</button>`;
+  d.querySelector('.del').onclick = () => d.remove();
+  return d;
+}
+function fillSettings(c){
+  $('#sCity').value = c.city; $('#sMusic').value = c.apps.music; $('#sAlexa').value = c.apps.alexa;
+  $('#sTapo').value = c.apps.tapo; $('#sMi').value = c.apps.mi;
+  const s = $('#sPlugs'); s.innerHTML = ''; c.plugs.forEach(p => s.appendChild(plugRow(p)));
+}
+$('#openSettings').onclick = () => { fillSettings(cfg); $('#modal').classList.add('open'); };
+$('#addPlug').onclick = () => $('#sPlugs').appendChild(plugRow());
+$('#reset').onclick = () => fillSettings(DEFAULTS);
+$('#cancel').onclick = () => $('#modal').classList.remove('open');
+$('#save').onclick = () => {
+  const cityChanged = cfg.city !== $('#sCity').value;
+  cfg.city = $('#sCity').value;
+  cfg.apps = {music:$('#sMusic').value.trim(), alexa:$('#sAlexa').value.trim(), tapo:$('#sTapo').value.trim(), mi:$('#sMi').value.trim()};
+  cfg.plugs = [...document.querySelectorAll('#sPlugs .row')].map(r => {
+    const o = {}; r.querySelectorAll('input').forEach(i => o[i.dataset.k] = i.value.trim()); return o;
+  }).filter(p => p.name);
+  saveCfg(); renderTiles(); renderPlugs(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
+  if (cityChanged) loadWeather();
+};
+$('#refresh').onclick = () => { loadWeather(); toast('Actualisation…'); };
+</script>
+</body>
+</html>
