@@ -94,13 +94,38 @@
   }
 
   /* En bref */
-  .brief{display:flex;flex-direction:column}
-  .brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;align-content:stretch}
-  .bi{background:var(--card2);border-radius:14px;padding:12px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:4px}
+  .brief{display:flex;flex-direction:column;gap:10px}
+  .today{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;text-align:left;width:100%}
+  .today h2{margin-bottom:6px}
+  .today .ev{display:flex;align-items:center;gap:10px;padding:4px 0;font-size:15px;min-width:0}
+  .today .ev .tm{flex:0 0 auto;width:62px;font-weight:600;font-variant-numeric:tabular-nums}
+  .today .ev .ti{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .today .ev .cbar{width:4px;align-self:stretch;border-radius:2px;flex:0 0 auto}
+  .today .more{font-size:13px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brief-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .bi{background:var(--card2);border-radius:12px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px;min-width:0}
   .bi:active{opacity:.75}
-  .bi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-  .bi .v{font-size:24px;font-weight:600;display:flex;align-items:center;gap:8px}
-  .bi .s{font-size:13px;color:var(--muted)}
+  .bi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bi .v{font-size:17px;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .bi .s{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dot{width:10px;height:10px}
+
+  /* Agenda */
+  .agday{margin-bottom:12px}
+  .agday h3{font-size:14px;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .agday h3 b{color:var(--txt)}
+  .agev{display:flex;gap:10px;background:var(--card2);border-radius:12px;padding:9px 12px;margin-bottom:6px;align-items:center}
+  .agev .cbar{width:4px;align-self:stretch;border-radius:2px;flex:0 0 auto}
+  .agev .tm{flex:0 0 auto;width:66px;font-weight:600;font-size:15px;font-variant-numeric:tabular-nums;line-height:1.2}
+  .agev .tm small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .agev .ti{font-size:15px;line-height:1.3;min-width:0}
+  .agev .ti small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .agev.past{opacity:.45}
+  .agev.now{outline:2px solid var(--accent)}
+  .scroll{overflow-y:auto;min-height:0}
+  .sheet .chk{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--txt);margin:12px 0 4px}
+  .sheet .chk input{width:22px;height:22px;flex:0 0 auto;padding:0;accent-color:var(--accent)}
+  .chks{display:flex;flex-wrap:wrap;gap:4px 18px}
   .dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex:0 0 auto}
 
   /* Mer */
@@ -190,7 +215,8 @@
     html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
     .app{height:auto}
     .page{grid-template-columns:1fr}
-    .brief-grid{min-height:0}
+    .brief-grid{grid-template-columns:1fr 1fr}
+    .today .ev{font-size:14px}
   }
   @media (max-height:480px) and (min-width:700px){
     .page{grid-template-columns:1.05fr 1fr}
@@ -217,16 +243,16 @@
     .pr{grid-template-columns:90px 1fr 80px}
     .st .v{font-size:26px}
   }
-  @media (max-width:360px){ .apps{grid-template-columns:1fr} .tab .tl{display:none} }
+  @media (max-width:520px){ .tab .tl{display:none} .tab{font-size:19px} }
+  @media (max-width:360px){ .apps{grid-template-columns:1fr} }
   /* Écrans peu hauts (Fire HD 8 en paysage) : accueil plus compact */
   @media (max-height:680px) and (min-height:481px){
     .tile{min-height:68px;padding:8px 14px}
     .radio{padding:8px 12px}
     .radio .logo{width:46px;height:46px;font-size:24px}
-    .bi{padding:7px 12px;gap:1px}
-    .bi .v{font-size:20px}
-    .bi .s{font-size:12px}
-    .brief h2{margin-bottom:6px}
+    .bi{padding:6px 10px}
+    .brief{gap:8px}
+    .today .ev{padding:2px 0;font-size:14px}
   }
   /* Fire HD 8 : onglets compacts */
   @media (max-width:1100px) and (min-width:761px){ .tab .tl{display:none} .tab{padding:9px 16px;font-size:18px} }
@@ -253,8 +279,13 @@
     .tile .ic{font-size:44px}
     .tile .t{font-size:24px}
     .tile .s{font-size:15px}
-    .bi .v{font-size:32px}
-    .bi .l,.bi .s{font-size:15px}
+    .bi .v{font-size:22px}
+    .bi .l,.bi .s{font-size:13px}
+    .bi{padding:12px 14px}
+    .today .ev{font-size:18px;padding:6px 0}
+    .today .ev .tm{width:76px}
+    .agev .ti,.agev .tm{font-size:18px}
+    .agday h3{font-size:16px}
     .st .v{font-size:42px}
     .st .l,.cmd{font-size:16px}
     .td b{font-size:26px}
@@ -274,6 +305,7 @@
       <button class="tab" data-tab="sea">🌊<span class="tl"> Mer</span></button>
       <button class="tab" data-tab="health">🌿<span class="tl"> Santé</span></button>
       <button class="tab" data-tab="musicp">🎵<span class="tl"> Musique</span></button>
+      <button class="tab" data-tab="agenda">📅<span class="tl"> Agenda</span></button>
     </nav>
     <div class="hd-right">
       <button class="icon-btn" id="fullscreen" title="Plein écran">⛶</button>
@@ -310,7 +342,7 @@
         <button class="rbtn" id="radioWeb" title="Ouvrir la page du direct">↗</button>
       </section>
       <section class="card brief">
-        <h2>En bref</h2>
+        <button class="today" id="today" data-tab="agenda"></button>
         <div class="brief-grid" id="brief"></div>
       </section>
     </div>
@@ -333,6 +365,12 @@
     <section class="card" id="musicMain"></section>
     <section class="card" id="musicCmds"></section>
   </main>
+
+  <!-- ===== Agenda ===== -->
+  <main class="page" id="p-agenda">
+    <section class="card scroll" id="agNear"><h2>Agenda</h2></section>
+    <section class="card scroll" id="agNext"><h2>Prochains jours</h2></section>
+  </main>
 </div>
 
 <div class="modal" id="modal">
@@ -354,15 +392,25 @@
     <label>Adresse des infos « morceau en cours » (laisser vide si inconnue)</label>
     <input id="sNp" placeholder="https://…">
 
-    <h4>Liens des applications</h4>
-    <label style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--txt);margin:6px 0 10px">
-      <input type="checkbox" id="sAlways" style="width:22px;height:22px;flex:0 0 auto"> Toujours afficher les tuiles
-    </label>
-    <p class="hint">Chaque tuile ouvre l'application installée. Laissez un champ vide pour masquer la tuile. Sans l'option ci-dessus, les tuiles s'affichent seulement sur les tablettes Fire (Silk) et dans Fully Kiosk. Avec l'option, elles s'affichent partout, mais dans Chrome et Brave certaines ouvrent le Play Store au lieu de l'application.</p>
-    <label>Amazon Music</label><input id="sMusic">
-    <label>Alexa</label><input id="sAlexa">
-    <label>Tapo</label><input id="sTapo">
-    <label>Xiaomi Home</label><input id="sMi">
+    <h4>Agenda Google</h4>
+    <p class="hint">Adresse de votre script Google (elle se termine par /exec). Elle reste enregistrée sur cet appareil uniquement : ne la partagez pas.</p>
+    <label>Adresse du script de l'agenda</label>
+    <input id="sAgenda" placeholder="https://script.google.com/macros/s/…/exec">
+
+    <h4>Tuiles des applications (sur cet appareil)</h4>
+    <p class="hint">Cochez les tuiles à afficher sur cet appareil. Sur les tablettes Fire, elles ouvrent les applications ; dans Chrome et Brave, certaines ouvrent le Play Store.</p>
+    <label class="chk"><input type="checkbox" data-show="music"> Amazon Music</label><input id="sMusic">
+    <label class="chk"><input type="checkbox" data-show="alexa"> Alexa</label><input id="sAlexa">
+    <label class="chk"><input type="checkbox" data-show="tapo"> Tapo</label><input id="sTapo">
+    <label class="chk"><input type="checkbox" data-show="mi"> Xiaomi Home</label><input id="sMi">
+
+    <h4>Cases « En bref » de l'accueil (sur cet appareil)</h4>
+    <div class="chks">
+      <label class="chk"><input type="checkbox" data-show="sea"> 🌊 Mer</label>
+      <label class="chk"><input type="checkbox" data-show="tide"> ⬆️ Marée</label>
+      <label class="chk"><input type="checkbox" data-show="air"> 🌬️ Air</label>
+      <label class="chk"><input type="checkbox" data-show="pollen"> 🌿 Pollens</label>
+    </div>
 
     <h4>Remettre à zéro</h4>
     <button class="btn" id="reset">Revenir aux réglages d'origine</button>
@@ -384,7 +432,8 @@ function app(pkg){
 const DEFAULTS = {
   city: '',
   device: 'Salon Ouest',
-  alwaysTiles: false,
+  agendaUrl: '',
+  show: {},
   radioStream: 'https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3',
   radioPage: 'https://www.radioclassique.fr/direct-radio/',
   npUrl: '',
@@ -663,28 +712,108 @@ async function loadAir(loc){
 function renderBrief(){
   const items = [];
   const sea = S.sea && S.sea.current;
-  items.push({tab:'sea', l:'🌊 Mer', v: sea && sea.sea_surface_temperature != null ? `Eau ${R(sea.sea_surface_temperature)}°` : '–',
+  items.push({k:'sea', tab:'sea', l:'🌊 Mer', v: sea && sea.sea_surface_temperature != null ? `Eau ${R(sea.sea_surface_temperature)}°` : '–',
     s: sea && sea.wave_height != null ? `Vagues ${num(sea.wave_height)} m` : ''});
   const nt = S.tides && S.tides[0];
-  items.push({tab:'sea', l: nt ? (nt.type === 'high' ? '⬆️ Pleine mer' : '⬇️ Basse mer') : '🌊 Marée', v: nt ? hm(new Date(nt.t*1000)) : '–',
-    s: S.tides && S.tides[1] ? (S.tides[1].type === 'high' ? 'puis pleine mer ' : 'puis basse mer ') + hm(new Date(S.tides[1].t*1000)) : ''});
+  items.push({k:'tide', tab:'sea', l: nt ? (nt.type === 'high' ? '⬆️ Marée' : '⬇️ Marée') : '🌊 Marée', v: nt ? hm(new Date(nt.t*1000)) : '–',
+    s: nt ? (nt.type === 'high' ? 'Pleine mer' : 'Basse mer') : ''});
   const aq = S.air && S.air.current, ai = aqiInfo(aq ? aq.european_aqi : null);
-  items.push({tab:'health', l:"🌬️ Qualité de l'air", v: `<i class="dot" style="background:${ai[1]}"></i>${ai[0]}`, s: aq && aq.european_aqi != null ? 'Indice ' + R(aq.european_aqi) : ''});
+  items.push({k:'air', tab:'health', l:"🌬️ Air", v: `<i class="dot" style="background:${ai[1]}"></i>${ai[0]}`, s: aq && aq.european_aqi != null ? 'Indice ' + R(aq.european_aqi) : ''});
   let pol = '–', ps = '';
   if (S.pollen){
     const top = S.pollen.filter(r => r.max != null).sort((a, b) => b.max - a.max)[0];
     if (top){ pol = `<i class="dot" style="background:${top.info[2]}"></i>${top.max < 1 ? 'Aucun' : top.info[0]}`; ps = top.max < 1 ? 'Hors saison' : top.name; }
   }
-  items.push({tab:'health', l:'🌿 Pollens', v: pol, s: ps});
-  $('#brief').innerHTML = items.map(i => `<button class="bi" data-tab="${i.tab}"><span class="l">${i.l}</span><span class="v">${i.v}</span><span class="s">${esc(i.s)}</span></button>`).join('');
+  items.push({k:'pollen', tab:'health', l:'🌿 Pollens', v: pol, s: ps});
+  const shown = items.filter(i => vis(i.k));
+  $('#brief').style.display = shown.length ? '' : 'none';
+  $('#brief').style.gridTemplateColumns = window.innerWidth <= 760 ? '' : `repeat(${shown.length || 1},1fr)`;
+  $('#brief').innerHTML = shown.map(i => `<button class="bi" data-tab="${i.tab}"><span class="l">${i.l}</span><span class="v">${i.v}</span><span class="s">${esc(i.s)}</span></button>`).join('');
 }
 $('#brief').addEventListener('click', e => { const b = e.target.closest('.bi'); if (b) showTab(b.dataset.tab); });
+$('#today').addEventListener('click', () => showTab('agenda'));
+
+/* ================= Agenda Google ================= */
+const DAY = 864e5;
+const day0 = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+// rendez-vous qui touchent le jour qui commence à t0
+const evOn = (evs, t0) => evs.filter(e => e.s < t0 + DAY && (e.e > t0 || (e.e === e.s && e.s >= t0)));
+const evTime = (e, t0) => e.a ? 'Journée' : (e.s < t0 ? 'suite' : hm(new Date(e.s)));
+async function loadAgenda(){
+  if (!cfg.agendaUrl){ S.agenda = null; S.agendaErr = null; renderAgenda(); return; }
+  try{
+    const r = await fetch(cfg.agendaUrl + (cfg.agendaUrl.includes('?') ? '&' : '?') + 'days=7');
+    const txt = await r.text();
+    let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('réponse inattendue : vérifiez que le script est déployé avec l\'accès « Tout le monde »'); }
+    if (!j || !Array.isArray(j.events)) throw new Error('réponse inattendue du script');
+    S.agenda = j.events; S.agendaErr = null;
+  }catch(e){
+    S.agendaErr = e.message || 'erreur de connexion';
+  }
+  renderAgenda();
+}
+function agEvent(e, t0){
+  const now = Date.now(), past = !e.a && e.e <= now, cur = !e.a && e.s <= now && e.e > now;
+  const tm = e.a ? 'Journée' : `${evTime(e, t0)}<small>${e.e > t0 + DAY ? '→ ' + fmtDay(new Date(e.e)) : '→ ' + hm(new Date(e.e))}</small>`;
+  return `<div class="agev${past ? ' past' : ''}${cur ? ' now' : ''}"><i class="cbar" style="background:${esc(e.c || '#4f9cff')}"></i>
+    <div class="tm">${tm}</div><div class="ti">${esc(e.t)}${e.l ? `<small>📍 ${esc(e.l)}</small>` : ''}</div></div>`;
+}
+function agDay(t0, label, evs){
+  const list = evOn(evs, t0);
+  const d = new Date(t0);
+  const date = JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()];
+  const head = label ? `<b>${label}</b> · ${date}` : `<b>${date.replace(/^./, c => c.toUpperCase())}</b>`;
+  return `<div class="agday"><h3>${head}</h3>
+    ${list.length ? list.map(e => agEvent(e, t0)).join('') : '<div class="empty">Rien de prévu</div>'}</div>`;
+}
+function renderAgenda(){
+  const t0 = day0(Date.now());
+  // ----- onglet Agenda -----
+  if (!cfg.agendaUrl){
+    $('#agNear').innerHTML = `<h2>Agenda</h2><div class="empty">📅 Agenda Google non configuré.<br>Ajoutez l'adresse de votre script dans ⚙︎ Réglages → Agenda Google.</div>`;
+    $('#agNext').innerHTML = '<h2>Prochains jours</h2>';
+  } else if (S.agendaErr && !S.agenda){
+    $('#agNear').innerHTML = `<h2>Agenda</h2><div class="err">Impossible de lire l'agenda : ${esc(S.agendaErr)}</div>`;
+    $('#agNext').innerHTML = '<h2>Prochains jours</h2>';
+  } else if (S.agenda){
+    const evs = S.agenda;
+    $('#agNear').innerHTML = `<h2><span>Agenda</span><small>màj ${hm(new Date())}</small></h2>` + agDay(t0, "Aujourd'hui", evs) + agDay(t0 + DAY, 'Demain', evs);
+    let rest = '';
+    for (let i = 2; i < 7; i++) rest += agDay(t0 + i * DAY, i === 2 ? 'Après-demain' : '', evs);
+    $('#agNext').innerHTML = '<h2>Prochains jours</h2>' + rest;
+  }
+  // ----- résumé sur l'accueil -----
+  const box = $('#today');
+  if (!cfg.agendaUrl){
+    box.innerHTML = `<h2>📅 Aujourd'hui</h2><div class="more">Agenda non configuré · ⚙︎ Réglages</div>`;
+    return;
+  }
+  if (!S.agenda){
+    box.innerHTML = `<h2>📅 Aujourd'hui</h2><div class="more">${S.agendaErr ? 'Agenda indisponible' : 'Chargement de l\'agenda…'}</div>`;
+    return;
+  }
+  const now = Date.now(), todays = evOn(S.agenda, t0);
+  const left = todays.filter(e => e.a || e.e > now);
+  const tomorrow = evOn(S.agenda, t0 + DAY);
+  let html = `<h2><span>📅 Aujourd'hui</span><small>${todays.length ? todays.length + ' rendez-vous' : ''} ›</small></h2>`;
+  if (left.length){
+    html += left.slice(0, 4).map(e => `<div class="ev"><i class="cbar" style="background:${esc(e.c || '#4f9cff')}"></i><span class="tm">${evTime(e, t0)}</span><span class="ti">${esc(e.t)}</span></div>`).join('');
+    if (left.length > 4) html += `<div class="more">+ ${left.length - 4} autre(s)</div>`;
+  } else {
+    html += `<div class="ev"><span class="ti" style="color:var(--muted)">${todays.length ? 'Plus rien de prévu aujourd\'hui' : 'Rien de prévu aujourd\'hui'}</span></div>`;
+  }
+  if (tomorrow.length && left.length < 3){
+    const f = tomorrow[0];
+    html += `<div class="more">Demain : ${f.a ? '' : hm(new Date(f.s)) + ' · '}${esc(f.t)}${tomorrow.length > 1 ? ' (+' + (tomorrow.length - 1) + ')' : ''}</div>`;
+  }
+  box.innerHTML = html;
+}
 
 /* ================= Musique (Alexa) ================= */
 function renderMusic(){
   const dev = (cfg.device || '').trim() || 'mon enceinte';
   const sur = ` sur ${esc(dev)}`;
-  const tileUrl = tilesAllowed() && cfg.apps.music;
+  const tileUrl = vis('music') && cfg.apps.music;
   $('#musicMain').innerHTML = `<h2>Musique</h2>
     <div class="device"><span class="ic">🔊</span><div><div class="n">${esc(dev)}</div><div class="s">Enceinte Alexa</div></div></div>
     ${tileUrl ? `<button class="tile music bigmusic" data-app="music"><span class="ic">🎵</span>
@@ -707,10 +836,15 @@ function renderMusic(){
 /* ================= Tuiles d'applications ================= */
 // Chrome, Brave… ouvrent le Play Store au lieu de l'application : tuiles visibles seulement dans Silk (Fire) et Fully Kiosk.
 const CAN_LAUNCH_APPS = /Silk/i.test(navigator.userAgent) || !!window.fully;
-const tilesAllowed = () => CAN_LAUNCH_APPS || !!cfg.alwaysTiles;
+const APP_KEYS = ['music', 'alexa', 'tapo', 'mi'];
+// Affichage réglé tuile par tuile, sur chaque appareil. Sans réglage : tuiles d'applications visibles sur Fire / Fully Kiosk, cases « En bref » visibles partout.
+function vis(k){
+  if (cfg.show && typeof cfg.show[k] === 'boolean') return cfg.show[k];
+  return APP_KEYS.includes(k) ? (CAN_LAUNCH_APPS || !!cfg.alwaysTiles) : true;
+}
 function renderTiles(){
-  document.querySelectorAll('.apps .tile').forEach(t => { t.hidden = !cfg.apps[t.dataset.app]; });
-  const show = tilesAllowed() && [...document.querySelectorAll('.apps .tile')].some(t => !t.hidden);
+  document.querySelectorAll('.apps .tile').forEach(t => { t.hidden = !cfg.apps[t.dataset.app] || !vis(t.dataset.app); });
+  const show = [...document.querySelectorAll('.apps .tile')].some(t => !t.hidden);
   $('.apps').style.display = show ? '' : 'none';
   $('#homeRight').style.gridTemplateRows = show ? 'auto auto 1fr' : 'auto 1fr';
 }
@@ -849,7 +983,8 @@ function renderEphem(){
     <div class="ep"><span class="l">📅 Jour ${doy}</span><span class="v">Sem. ${isoWeek(d)}</span><span class="s">${cal}</span></div></div>`;
 }
 
-renderTiles(); renderMusic(); renderBrief(); renderEphem();
+renderTiles(); renderMusic(); renderBrief(); renderEphem(); renderAgenda();
+loadAgenda(); setInterval(loadAgenda, 5 * 60000); setInterval(renderAgenda, 60000);
 setInterval(renderEphem, 10 * 60000);
 loadAll(); setInterval(loadAll, 15 * 60000);
 
@@ -861,11 +996,12 @@ $('#fullscreen').onclick = () => {
   keepAwake();
 };
 document.addEventListener('click', keepAwake, {once:true});
-document.addEventListener('visibilitychange', () => { if (!document.hidden){ keepAwake(); loadAll(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden){ keepAwake(); loadAll(); loadAgenda(); } });
 
 /* ================= Réglages ================= */
 function fillSettings(c){
-  $('#sAlways').checked = !!c.alwaysTiles;
+  $('#sAgenda').value = c.agendaUrl || '';
+  const old = cfg; cfg = c; document.querySelectorAll('[data-show]').forEach(i => { i.checked = vis(i.dataset.show); }); cfg = old;
   $('#sCity').value = c.city; $('#sDevice').value = c.device; $('#sFavs').value = (c.favs || []).join(', ');
   $('#sStream').value = c.radioStream || ''; $('#sNp').value = c.npUrl || '';
   $('#sMusic').value = c.apps.music; $('#sAlexa').value = c.apps.alexa; $('#sTapo').value = c.apps.tapo; $('#sMi').value = c.apps.mi;
@@ -880,12 +1016,16 @@ $('#save').onclick = () => {
   cfg.favs = $('#sFavs').value.split(',').map(s => s.trim()).filter(Boolean);
   cfg.radioStream = $('#sStream').value.trim(); cfg.npUrl = $('#sNp').value.trim();
   stopRadio(); loadNowPlaying();
-  cfg.alwaysTiles = $('#sAlways').checked;
+  cfg.show = {}; document.querySelectorAll('[data-show]').forEach(i => { cfg.show[i.dataset.show] = i.checked; });
+  delete cfg.alwaysTiles;
+  const agChanged = cfg.agendaUrl !== $('#sAgenda').value.trim();
+  cfg.agendaUrl = $('#sAgenda').value.trim();
   cfg.apps = {music:$('#sMusic').value.trim(), alexa:$('#sAlexa').value.trim(), tapo:$('#sTapo').value.trim(), mi:$('#sMi').value.trim()};
-  saveCfg(); renderTiles(); renderMusic(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
+  saveCfg(); renderTiles(); renderMusic(); renderBrief(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
+  if (agChanged){ S.agenda = null; loadAgenda(); }
   if (cityChanged) loadAll();
 };
-$('#refresh').onclick = () => { loadAll(); toast('Actualisation…'); };
+$('#refresh').onclick = () => { loadAll(); loadAgenda(); toast('Actualisation…'); };
 </script>
 </body>
 </html>
