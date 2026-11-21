@@ -274,7 +274,18 @@
     .radio .np{font-size:20px} .radio .np2{font-size:15px} .rbtn{width:56px;height:56px;font-size:22px}
   }
 
-  /* Musique */
+  /* Raccourcis */
+  #p-links{grid-template-columns:1fr}
+  #p-links .card{overflow-y:auto}
+  .lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+  .lk{display:flex;align-items:center;gap:12px;background:var(--card2);border-radius:14px;padding:12px;text-align:left;min-width:0}
+  .lk:active{opacity:.7}
+  .lk .badge{width:52px;height:52px;font-size:15px;border-radius:13px}
+  .lk .nm{font-size:17px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lk .nm small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+  @media (min-width:1150px) and (min-height:740px){ .lk{padding:16px} .lk .badge{width:62px;height:62px;font-size:17px} .lk .nm{font-size:20px} }
+
+  /* Musique (ancien onglet) */
   .cmds{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .cmd{background:var(--card2);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.4;color:var(--muted)}
   .cmd b{color:var(--alexa);font-weight:600}
@@ -402,7 +413,7 @@
       <button class="tab active" data-tab="home">🏠<span class="tl"> Accueil</span></button>
       <button class="tab" data-tab="sea">🌊<span class="tl"> Mer</span></button>
       <button class="tab" data-tab="health">🌿<span class="tl"> Santé</span></button>
-      <button class="tab" data-tab="musicp">🎵<span class="tl"> Musique</span></button>
+      <button class="tab" data-tab="links">🔗<span class="tl"> Raccourcis</span></button>
       <button class="tab" data-tab="agenda">📅<span class="tl"> Agenda</span></button>
       <button class="tab" data-tab="radios">📻<span class="tl"> Radios</span></button>
       <button class="tab" data-tab="bus">🚌<span class="tl"> Bus</span></button>
@@ -462,15 +473,17 @@
     <section class="card" id="pollenCard"><h2>Pollens</h2><div class="empty">Chargement…</div></section>
   </main>
 
-  <!-- ===== Musique ===== -->
-  <main class="page" id="p-musicp">
-    <section class="card" id="musicMain"></section>
-    <section class="card" id="musicCmds"></section>
+  <!-- ===== Raccourcis ===== -->
+  <main class="page" id="p-links">
+    <section class="card"><h2>Raccourcis</h2>
+      <div id="links"></div>
+      <p class="note">Sur Android, chaque raccourci s'ouvre dans le navigateur indiqué (Brave ou Chrome) ou dans l'application ChatGPT ; s'ils ne sont pas installés, la page s'ouvre dans le navigateur actuel. Sur iPad, tout s'ouvre dans Safari.</p>
+    </section>
   </main>
 
   <!-- ===== Radios ===== -->
   <main class="page" id="p-radios">
-    <section class="card"><h2><span>Radios DAB+ de la région · écoute par Internet</span><small>⭐ = favoris (mode voiture)</small></h2>
+    <section class="card"><h2><span>Radios DAB+ de la région · écoute par Internet</span><small>Touchez ⭐ pour ajouter ou retirer un favori</small></h2>
       <div class="rbar" id="rbar"></div>
       <div id="rlist"></div>
       <p class="note">Les tablettes et téléphones n'ont pas de récepteur DAB+ : ces radios sont écoutées par Internet (environ 30 à 60 Mo par heure en données mobiles). Liste indicative des radios diffusées en DAB+ sur le Dunkerquois.</p>
@@ -507,11 +520,9 @@
     <label>Autre ville (laisser vide pour Malo-les-Bains, Dunkerque)</label>
     <input id="sCity" placeholder="ex. Lille">
 
-    <h4>Musique</h4>
+    <h4>Musique et radio</h4>
     <label>Nom de l'enceinte Alexa (tel qu'affiché dans l'app Alexa)</label>
     <input id="sDevice" placeholder="ex. Salon Ouest">
-    <label>Vos radios et musiques favorites (séparées par des virgules)</label>
-    <input id="sFavs" placeholder="ex. Radio Classique, FIP, de la musique relaxante">
     <label>Flux audio de Radio Classique (pour écouter sur cet appareil avec ▶)</label>
     <input id="sStream">
     <label>Adresse des infos « morceau en cours » (laisser vide si inconnue)</label>
@@ -541,6 +552,9 @@
     <label class="chk"><input type="checkbox" data-show="alexa"> Alexa</label><input id="sAlexa">
     <label class="chk"><input type="checkbox" data-show="tapo"> Tapo</label><input id="sTapo">
     <label class="chk"><input type="checkbox" data-show="mi"> Xiaomi Home</label><input id="sMi">
+
+    <h4>Raccourcis (sur cet appareil)</h4>
+    <div id="sLinks"></div>
 
     <h4>Cases « En bref » de l'accueil (sur cet appareil)</h4>
     <div class="chks">
@@ -988,29 +1002,53 @@ function renderAgenda(){
   renderCar();
 }
 
-/* ================= Musique (Alexa) ================= */
-function renderMusic(){
-  const dev = (cfg.device || '').trim() || 'mon enceinte';
-  const sur = ` sur ${esc(dev)}`;
-  const tileUrl = vis('music') && cfg.apps.music;
-  $('#musicMain').innerHTML = `<h2>Musique</h2>
-    <div class="device"><span class="ic">🔊</span><div><div class="n">${esc(dev)}</div><div class="s">Enceinte Alexa</div></div></div>
-    ${tileUrl ? `<button class="tile music bigmusic" data-app="music"><span class="ic">🎵</span>
-      <span><div class="t">Amazon Music</div><div class="s">Ouvrir l'application</div></span></button>` : ''}
-    <div class="sub">Lancer une écoute</div>
-    <div class="cmds">${(cfg.favs || []).filter(Boolean).map(f => `<div class="cmd"><q><b>Alexa</b>, joue ${esc(f)}${sur}</q></div>`).join('')}</div>
-    <p class="note">ℹ️ Le titre en cours sur ${esc(dev)} ne peut pas s'afficher ici : Amazon ne le permet pas aux pages web. Demandez « Alexa, qu'est-ce qui joue ? ».</p>`;
-  const C = [
-    ['⏯️ Lecture', `<q><b>Alexa</b>, pause${sur}</q><br><q><b>Alexa</b>, reprends${sur}</q>`],
-    ['⏭️ Morceaux', `<q><b>Alexa</b>, suivant${sur}</q><br><q><b>Alexa</b>, précédent${sur}</q>`],
-    ['🔉 Volume', `<q><b>Alexa</b>, volume 5${sur}</q><br><q><b>Alexa</b>, plus fort${sur}</q>`],
-    ['ℹ️ Infos', `<q><b>Alexa</b>, qu'est-ce qui joue ?</q><br><q><b>Alexa</b>, qui chante ?</q>`],
-    ['⏰ Minuterie', `<q><b>Alexa</b>, arrête la musique dans 30 minutes</q>`],
-    ['🔁 Ailleurs', `<q><b>Alexa</b>, déplace la musique sur …</q>`],
-  ];
-  $('#musicCmds').innerHTML = `<h2>Commandes vocales</h2><div class="cmds">${C.map(([w, t]) => `<div class="cmd"><span class="w">${w}</span>${t}</div>`).join('')}</div>`;
-  bindTiles();
+/* ================= Raccourcis (Brave, Chrome, applications) ================= */
+const PKG = {brave: 'com.brave.browser', chrome: 'com.android.chrome'};
+const LINKS = [
+  {g:'Dans Brave', nav:'brave', items:[
+    {id:'youtube', n:'YouTube', d:'youtube.com', u:'https://www.youtube.com/', c:'#ff0000', b:'▶'},
+    {id:'autotitre', n:'Auto Titre', d:'autotitre.com', u:'https://www.autotitre.com/', c:'#e30613', b:'AT'},
+    {id:'lesnum', n:'Les Numériques', d:'lesnumeriques.com', u:'https://www.lesnumeriques.com/', c:'#222222', b:'LN'},
+    {id:'frandroid', n:'Frandroid', d:'frandroid.com', u:'https://www.frandroid.com/', c:'#16a085', b:'FRA'},
+    {id:'phonandroid', n:'Phonandroid', d:'phonandroid.com', u:'https://www.phonandroid.com/', c:'#2e7d32', b:'PA'},
+    {id:'eurosport', n:'Eurosport', d:'eurosport.fr', u:'https://www.eurosport.fr/', c:'#141b4d', b:'ES'}]},
+  {g:'Dans Google Chrome', nav:'chrome', items:[
+    {id:'claude', n:'Claude', d:'claude.ai', u:'https://claude.ai/', c:'#d97757', b:'✳'},
+    {id:'github', n:'GitHub', d:'github.com', u:'https://github.com/', c:'#24292f', b:'GH'}]},
+  {g:'Applications', items:[
+    {id:'chatgpt', n:'ChatGPT', d:'application', u:'https://chatgpt.com/', app:'com.openai.chatgpt', c:'#10a37f', b:'GPT'}]},
+];
+const IS_ANDROID = /Android/i.test(navigator.userAgent);
+// Lien Android qui demande l'ouverture d'une adresse dans une application précise ; si elle est absente, on reste dans le navigateur.
+const appLink = (url, pkg) => { const x = new URL(url);
+  return `intent://${x.host}${x.pathname}${x.search}#Intent;scheme=https;package=${pkg};S.browser_fallback_url=${encodeURIComponent(url)};end`; };
+function openLink(it, nav){
+  if (!IS_ANDROID){ window.open(it.u, '_blank'); return; }           // iPad / iPhone / ordinateur : navigateur habituel
+  if (it.app){
+    if (window.fully && typeof fully.startApplication === 'function'){ try { fully.startApplication(it.app); return; } catch (e) {} }
+    if (/Silk/i.test(navigator.userAgent)){ window.location.href = app(it.app); return; }
+    window.location.href = appLink(it.u, it.app); return;
+  }
+  window.location.href = appLink(it.u, PKG[nav]);
 }
+function renderLinks(){
+  const html = LINKS.map((grp, gi) => {
+    const items = grp.items.map((it, ii) => [it, ii]).filter(([it]) => vis('lk-' + it.id));
+    if (!items.length) return '';
+    return `<div class="rgroup">${esc(grp.g)}</div><div class="lgrid">` +
+    items.map(([it, ii]) => `<button class="lk" data-l="${gi}:${ii}">${badge({c: it.c, b: it.b})}
+      <span class="nm">${esc(it.n)}<small>${esc(it.d)}</small></span></button>`).join('') + '</div>';
+  }).join('');
+  $('#links').innerHTML = html || '<div class="empty">Aucun raccourci affiché sur cet appareil. Cochez-les dans ⚙︎ → Raccourcis.</div>';
+}
+// cases à cocher des réglages, générées à partir de la liste
+$('#sLinks').innerHTML = LINKS.map(grp => `<div class="sub">${esc(grp.g)}</div><div class="chks">` +
+  grp.items.map(it => `<label class="chk"><input type="checkbox" data-show="lk-${it.id}"> ${esc(it.n)}</label>`).join('') + '</div>').join('');
+$('#links').addEventListener('click', e => {
+  const b = e.target.closest('[data-l]'); if (!b) return;
+  const [gi, ii] = b.dataset.l.split(':').map(Number);
+  openLink(LINKS[gi].items[ii], LINKS[gi].nav);
+});
 
 /* ================= Tuiles d'applications ================= */
 // Chrome, Brave… ouvrent le Play Store au lieu de l'application : tuiles visibles seulement dans Silk (Fire) et Fully Kiosk.
@@ -1142,8 +1180,12 @@ async function playStation(st){
   renderPlayer();
 }
 function togglePlay(){ if (P.playing || P.busy){ P.busy = false; stopRadio(); } else playStation(P.st); }
+// Tri alphabétique (sans tenir compte des majuscules ni des accents)
+const byName = (a, b) => a.name.localeCompare(b.name, 'fr', {sensitivity: 'base'});
+const isFav = x => (cfg.radioFavs || []).includes(x.id);
 function stepStation(dir){
-  const ids = (cfg.radioFavs && cfg.radioFavs.length ? cfg.radioFavs : STATIONS.map(x => x.id)).filter(id => STATIONS.some(x => x.id === id));
+  const favs = STATIONS.filter(isFav).sort(byName);
+  const ids = (favs.length ? favs : STATIONS.slice().sort(byName)).map(x => x.id);
   let i = ids.indexOf(P.st.id); i = i < 0 ? 0 : (i + dir + ids.length) % ids.length;
   playStation(stById(ids[i]));
 }
@@ -1157,11 +1199,13 @@ function renderRadios(){
     <div class="a">Sur l'enceinte : « <b>Alexa</b>, joue ${esc(st.alexa || st.name)} sur ${esc(dev)} »</div></div>
     <button class="rbtn play" id="rbarPlay">${P.playing || P.busy ? '⏸' : '▶'}</button>`;
   $('#rbarPlay').onclick = togglePlay;
-  const groups = [...new Set(STATIONS.map(x => x.g))];
-  $('#rlist').innerHTML = groups.map(g => `<div class="rgroup">${esc(g)}</div><div class="rgrid">${STATIONS.filter(x => x.g === g).map(x =>
-    `<button class="stn${x.id === st.id && (P.playing || P.busy) ? ' on' : ''}" data-st="${x.id}">${badge(x)}
+  const tile = x => `<button class="stn${x.id === st.id && (P.playing || P.busy) ? ' on' : ''}" data-st="${x.id}">${badge(x)}
       <span class="nm">${esc(x.name)}${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</span>
-      <span class="star${(cfg.radioFavs || []).includes(x.id) ? ' fav' : ''}" data-fav="${x.id}">⭐</span></button>`).join('')}</div>`).join('');
+      <span class="star${isFav(x) ? ' fav' : ''}" data-fav="${x.id}">⭐</span></button>`;
+  const favs = STATIONS.filter(isFav).sort(byName), others = STATIONS.filter(x => !isFav(x)).sort(byName);
+  $('#rlist').innerHTML =
+    (favs.length ? `<div class="rgroup">⭐ Favoris</div><div class="rgrid">${favs.map(tile).join('')}</div>` : '') +
+    `<div class="rgroup">${favs.length ? 'Autres radios' : 'Toutes les radios'}</div><div class="rgrid">${others.map(tile).join('')}</div>`;
 }
 $('#rlist').addEventListener('click', e => {
   const f = e.target.closest('[data-fav]');
@@ -1348,7 +1392,7 @@ function renderEphem(){
     <div class="ep"><span class="l">📅 Jour ${doy}</span><span class="v">Sem. ${isoWeek(d)}</span><span class="s">${cal}</span></div></div>`;
 }
 
-renderTiles(); renderMusic(); renderBrief(); renderEphem(); renderAgenda(); renderPlayer();
+renderTiles(); bindTiles(); renderLinks(); renderBrief(); renderEphem(); renderAgenda(); renderPlayer();
 if (cfg.carStart || /[?#&]voiture\b/.test(location.href)) setCar(true);
 loadAgenda(); setInterval(loadAgenda, 5 * 60000); setInterval(renderAgenda, 60000);
 
@@ -1460,7 +1504,7 @@ function fillSettings(c){
   $('#sBusHor').value = c.busHor || ''; $('#sBusMap').value = c.busMap || '';
   $('#sHome').value = c.homeAddr || ''; $('#sNavApp').value = c.navApp || 'gmaps'; $('#sCarStart').checked = !!c.carStart;
   const old = cfg; cfg = c; document.querySelectorAll('[data-show]').forEach(i => { i.checked = vis(i.dataset.show); }); cfg = old;
-  $('#sCity').value = c.city; $('#sDevice').value = c.device; $('#sFavs').value = (c.favs || []).join(', ');
+  $('#sCity').value = c.city; $('#sDevice').value = c.device;
   $('#sStream').value = c.radioStream || ''; $('#sNp').value = c.npUrl || '';
   $('#sMusic').value = c.apps.music; $('#sAlexa').value = c.apps.alexa; $('#sTapo').value = c.apps.tapo; $('#sMi').value = c.apps.mi;
 }
@@ -1471,7 +1515,6 @@ $('#save').onclick = () => {
   const cityChanged = cfg.city !== $('#sCity').value;
   cfg.city = $('#sCity').value;
   cfg.device = $('#sDevice').value.trim();
-  cfg.favs = $('#sFavs').value.split(',').map(s => s.trim()).filter(Boolean);
   cfg.radioStream = $('#sStream').value.trim(); cfg.npUrl = $('#sNp').value.trim();
   if (P.st.id === 'rc' && P.playing) stopRadio(); loadNowPlaying();
   cfg.homeAddr = $('#sHome').value.trim(); cfg.navApp = $('#sNavApp').value; cfg.carStart = $('#sCarStart').checked;
@@ -1481,7 +1524,7 @@ $('#save').onclick = () => {
   cfg.agendaUrl = $('#sAgenda').value.trim();
   cfg.busHor = $('#sBusHor').value.trim() || DEFAULTS.busHor; cfg.busMap = $('#sBusMap').value.trim() || DEFAULTS.busMap;
   cfg.apps = {music:$('#sMusic').value.trim(), alexa:$('#sAlexa').value.trim(), tapo:$('#sTapo').value.trim(), mi:$('#sMi').value.trim()};
-  saveCfg(); renderTiles(); renderMusic(); renderBrief(); renderHomeBus(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
+  saveCfg(); renderTiles(); renderLinks(); renderBrief(); renderHomeBus(); $('#modal').classList.remove('open'); toast('Réglages enregistrés');
   if (agChanged){ S.agenda = null; loadAgenda(); }
   if (cityChanged) loadAll();
 };
