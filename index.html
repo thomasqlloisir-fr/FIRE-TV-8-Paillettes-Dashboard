@@ -213,6 +213,45 @@
   .dep.first .m{color:var(--accent)}
   @media (max-width:760px){ .deps{grid-template-columns:1fr} }
 
+  /* Mémos */
+  #p-memos{grid-template-columns:1fr 1fr}
+  .mform{display:flex;gap:8px;margin-bottom:10px}
+  .mform input{flex:1;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px}
+  .mform button{width:52px;border-radius:12px;background:var(--accent);color:#fff;font-size:24px;flex:0 0 auto}
+  .mlist{overflow-y:auto;min-height:0;flex:1}
+  .mi{display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:12px;padding:10px 12px;margin-bottom:6px}
+  .mi .ck{width:30px;height:30px;border-radius:8px;border:2px solid var(--muted);flex:0 0 auto;font-size:18px;display:flex;align-items:center;justify-content:center;color:#fff}
+  .mi.done .ck{background:var(--good);border-color:var(--good)}
+  .mi .tx{flex:1;font-size:17px;min-width:0;word-break:break-word}
+  .mi.done .tx{text-decoration:line-through;color:var(--muted)}
+  .mi .rm{font-size:18px;color:var(--muted);padding:4px 8px;flex:0 0 auto}
+  .memocard{display:flex;flex-direction:column}
+  .mclear{margin-top:8px;align-self:flex-start;padding:9px 14px;border-radius:10px;background:var(--card2);font-size:14px;color:var(--muted)}
+  @media (max-width:760px){ #p-memos{grid-template-columns:1fr} }
+
+  /* Jarvis */
+  #jv{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(200px);width:min(640px,92vw);z-index:45;
+    background:#0d1526;border:2px solid var(--accent);border-radius:20px;padding:16px 18px;transition:transform .25s;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+  #jv.show{transform:translateX(-50%) translateY(0)}
+  #jv .who{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;font-weight:700;display:flex;align-items:center;gap:8px}
+  #jv .heard{font-size:15px;color:var(--muted);margin-top:6px;font-style:italic;min-height:18px}
+  #jv .answer{font-size:19px;margin-top:6px;line-height:1.35}
+  #jv .pulse{width:10px;height:10px;border-radius:50%;background:var(--bad);display:none}
+  #jv.listening .pulse{display:inline-block;animation:pulse 1s infinite}
+  .icon-btn.mic.on{background:var(--bad);border-color:var(--bad)}
+  .c-mic{width:64px;height:64px;border-radius:18px;background:var(--accent);font-size:28px;flex:0 0 auto}
+  .c-mic.on{background:var(--bad)}
+
+  /* Cadre photo */
+  #frame{position:fixed;top:0;right:0;bottom:0;left:0;background:#000;z-index:60;display:none;overflow:hidden;cursor:none}
+  #frame.on{display:block}
+  #frame img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 2s}
+  #frame img.vis{opacity:1}
+  #frame .fdim{position:absolute;top:0;right:0;bottom:0;left:0;background:#000;pointer-events:none}
+  #frame .finfo{position:absolute;left:4vw;bottom:5vh;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.8)}
+  #frame .fclock{font-size:min(16vw,140px);font-weight:200;line-height:1;font-variant-numeric:tabular-nums}
+  #frame .fdate{font-size:min(4vw,28px);margin-top:6px;text-transform:capitalize;opacity:.9}
+
   /* Agenda */
   .agday{margin-bottom:12px}
   .agday h3{font-size:14px;color:var(--muted);margin-bottom:6px;font-weight:600}
@@ -313,6 +352,7 @@
   .sheet p.hint{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:6px}
   .sheet label{display:block;font-size:13px;color:var(--muted);margin:8px 0 4px}
   .sheet input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:15px}
+  .sheet .sel{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:15px}
   .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
   .btn{padding:12px 18px;border-radius:12px;background:var(--card2);font-weight:600;font-size:15px}
   .btn.primary{background:var(--accent);color:#fff}
@@ -369,7 +409,7 @@
     .today .ev{padding:2px 0;font-size:14px}
   }
   /* Fire HD 8 : onglets compacts */
-  @media (max-width:1100px) and (min-width:761px){ .tab .tl{display:none} .tab{padding:9px 16px;font-size:18px} }
+  @media (max-width:1399px) and (min-width:761px){ .tab .tl{display:none} .tab{padding:9px 14px;font-size:18px} }
 
   /* ---------- Grandes tablettes (Galaxy Tab S5e en paysage) ---------- */
   @media (min-width:1150px) and (min-height:740px){
@@ -422,8 +462,10 @@
       <button class="tab" data-tab="agenda">📅<span class="tl"> Agenda</span></button>
       <button class="tab" data-tab="radios">📻<span class="tl"> Radios</span></button>
       <button class="tab" data-tab="bus">🚌<span class="tl"> Bus</span></button>
+      <button class="tab" data-tab="memos">📝<span class="tl"> Mémos</span></button>
     </nav>
     <div class="hd-right">
+      <button class="icon-btn mic" id="micBtn" title="Jarvis : parler">🎙️</button>
       <button class="icon-btn" id="carBtn" title="Mode voiture">🚗</button>
       <button class="icon-btn" id="fullscreen" title="Plein écran">⛶</button>
       <button class="icon-btn" id="refresh" title="Actualiser">↻</button>
@@ -509,6 +551,20 @@
     </section>
   </main>
 
+  <!-- ===== Mémos ===== -->
+  <main class="page" id="p-memos">
+    <section class="card memocard"><h2><span>🛒 Liste de courses</span><small class="mupd"></small></h2>
+      <form class="mform" data-list="courses"><input placeholder="Ajouter un article…" maxlength="200" enterkeyhint="done"><button type="submit">＋</button></form>
+      <div class="mlist" id="ml-courses"></div>
+      <button class="mclear" data-clear="courses">Effacer les articles cochés</button>
+    </section>
+    <section class="card memocard"><h2><span>📝 Mémos</span><small class="mupd"></small></h2>
+      <form class="mform" data-list="memos"><input placeholder="Ajouter un mémo…" maxlength="200" enterkeyhint="done"><button type="submit">＋</button></form>
+      <div class="mlist" id="ml-memos"></div>
+      <button class="mclear" data-clear="memos">Effacer les mémos cochés</button>
+    </section>
+  </main>
+
   <!-- ===== Agenda ===== -->
   <main class="page" id="p-agenda">
     <section class="card scroll" id="agNear"><h2>Agenda</h2></section>
@@ -546,8 +602,33 @@
     <label>Page des horaires</label><input id="sBusHor">
     <label>Page des bus en temps réel</label><input id="sBusMap">
 
+    <h4>Jarvis</h4>
+    <label class="chk"><input type="checkbox" id="sVoice"> Réponses à voix haute</label>
+    <p class="hint">Touchez 🎙️ puis parlez : « Mets FIP », « Stop », « Prochain bus », « Météo de demain », « Agenda », « Ajoute du pain à la liste de courses »… La reconnaissance vocale fonctionne dans Chrome et Brave sur Android ; elle n'est pas disponible sur certains appareils (le bouton 🎙️ est alors masqué).</p>
+
+    <h4>Cadre photo la nuit (sur cet appareil)</h4>
+    <label class="chk"><input type="checkbox" id="sPhotoOn"> Activer le cadre photo</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div><label>De</label><input type="time" id="sPhotoStart"></div>
+      <div><label>À</label><input type="time" id="sPhotoEnd"></div>
+      <div><label>Après (inactivité)</label><select id="sPhotoIdle" class="sel"><option value="1">1 min</option><option value="2">2 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option></select></div>
+    </div>
+    <label>Photos</label>
+    <select id="sPhotoSrc" class="sel"><option value="local">Mes photos (enregistrées sur cet appareil)</option><option value="picsum">Belles photos au hasard (Internet)</option></select>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px">
+      <button class="btn" id="photoPick" type="button">📷 Ajouter des photos…</button>
+      <button class="btn" id="photoClear" type="button">Effacer mes photos</button>
+      <span class="hint" id="photoCount" style="margin:0"></span>
+    </div>
+    <input type="file" id="photoFile" accept="image/*" multiple style="display:none">
+    <p class="hint">Les photos choisies sont réduites puis gardées uniquement dans ce navigateur, sur cet appareil : elles ne sont envoyées nulle part.</p>
+    <label>Assombrissement : <b id="sPhotoDimV"></b></label>
+    <input type="range" id="sPhotoDim" min="0" max="85" step="5" style="padding:0">
+    <p class="hint">Mêmes heures de début et de fin = toute la journée. Touchez l'écran pour quitter le cadre photo.</p>
+    <button class="btn" id="photoTest" type="button">Essayer maintenant</button>
+
     <h4>Agenda Google</h4>
-    <p class="hint">Adresse de votre script Google (elle se termine par /exec). Elle reste enregistrée sur cet appareil uniquement : ne la partagez pas.</p>
+    <p class="hint">Adresse de votre script Google (elle se termine par /exec). Elle sert aussi pour le bus, les mémos et vos photos. Elle reste enregistrée sur cet appareil uniquement : ne la partagez pas.</p>
     <label>Adresse du script de l'agenda</label>
     <input id="sAgenda" placeholder="https://script.google.com/macros/s/…/exec">
 
@@ -581,11 +662,19 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- ===== Jarvis ===== -->
+<div id="jv"><div class="who"><i class="pulse"></i>🤖 Jarvis</div><div class="heard" id="jvHeard"></div><div class="answer" id="jvAnswer"></div></div>
+
+<!-- ===== Cadre photo ===== -->
+<div id="frame"><img id="fImgA" alt=""><img id="fImgB" alt=""><div class="fdim" id="fDim"></div>
+  <div class="finfo"><div class="fclock" id="fClock"></div><div class="fdate" id="fDate"></div></div></div>
+
 <!-- ===== Mode voiture ===== -->
 <div id="car">
   <div class="c-top">
     <div class="c-clock" id="cClock">--:--</div>
     <div class="c-wx" id="cWx"></div>
+    <button class="c-mic" id="cMic" title="Jarvis : parler">🎙️</button>
     <button class="c-exit" id="cExit" title="Quitter le mode voiture">✕</button>
   </div>
   <div class="c-box">
@@ -625,6 +714,8 @@ const DEFAULTS = {
   homeAddr: '',
   navApp: 'gmaps',
   carStart: false,
+  voice: true,
+  photoOn: false, photoStart: '22:00', photoEnd: '07:00', photoIdle: 5, photoSrc: 'local', photoDim: 30,
   radioFavs: ['rc', 'inter', 'fip', 'icinord', 'info'],
   lastStation: 'rc',
   show: {},
@@ -670,6 +761,7 @@ function showTab(name){
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'p-' + name));
   window.scrollTo(0, 0);
+  if (name === 'memos' && typeof loadMemos === 'function') loadMemos();
 }
 $('#tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) showTab(b.dataset.tab); });
 
@@ -1345,6 +1437,323 @@ $('#cHome').onclick = () => { if (cfg.homeAddr) window.location.href = navUrl(cf
 $('#cNav').onclick = () => { window.location.href = cfg.navApp === 'waze' ? 'https://waze.com/ul' : 'https://www.google.com/maps/@?api=1&map_action=map'; };
 setInterval(renderCar, 15000);
 
+/* ================= Mémos partagés (via le script Google) ================= */
+S.memos = null;
+async function memoCall(params){
+  if (!cfg.agendaUrl) throw new Error('script Google non configuré (⚙︎ → Agenda Google)');
+  const q = Object.entries(params).map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+  const j = await getJSON(cfg.agendaUrl + (cfg.agendaUrl.includes('?') ? '&' : '?') + q + '&_=' + Date.now());
+  if (j && Array.isArray(j.items)) return j.items;
+  if (j && Array.isArray(j.events)) throw new Error('script Google à mettre à jour');
+  throw new Error('réponse inattendue du script');
+}
+async function loadMemos(){
+  try { S.memos = await memoCall({memo: 'list'}); S.memoErr = null; S.memoUpd = Date.now(); }
+  catch (e) { S.memoErr = e.message; }
+  renderMemos();
+}
+async function memoDo(params, optimistic){
+  if (optimistic && S.memos) { optimistic(S.memos); renderMemos(); }
+  try { S.memos = await memoCall(params); S.memoErr = null; S.memoUpd = Date.now(); }
+  catch (e) { S.memoErr = e.message; toast('Mémos : ' + e.message); }
+  renderMemos();
+}
+const addMemo = (text, list) => memoDo({memo: 'add', list, text}, m => m.push({id: 'tmp' + Date.now(), t: text, l: list, d: false}));
+function renderMemos(){
+  ['courses', 'memos'].forEach(list => {
+    const box = $('#ml-' + list);
+    if (!S.memos){ box.innerHTML = `<div class="${S.memoErr ? 'err' : 'empty'}">${S.memoErr ? esc(S.memoErr) : 'Chargement…'}</div>`; return; }
+    const items = S.memos.filter(i => i.l === list).sort((a, b) => (a.d - b.d) || (a.at || 0) - (b.at || 0));
+    box.innerHTML = items.length ? items.map(i => `<div class="mi${i.d ? ' done' : ''}" data-id="${esc(i.id)}">
+      <button class="ck" data-act="toggle">${i.d ? '✓' : ''}</button><span class="tx">${esc(i.t)}</span>
+      <button class="rm" data-act="del" title="Supprimer">✕</button></div>`).join('')
+      : `<div class="empty">${list === 'courses' ? 'Liste vide' : 'Aucun mémo'}</div>`;
+  });
+  document.querySelectorAll('.mupd').forEach(x => { x.textContent = S.memoUpd ? 'synchro ' + hm(new Date(S.memoUpd)) : ''; });
+}
+document.querySelectorAll('.mform').forEach(f => f.addEventListener('submit', e => {
+  e.preventDefault();
+  const inp = f.querySelector('input'), t = inp.value.trim();
+  if (t){ addMemo(t, f.dataset.list); inp.value = ''; }
+}));
+['courses', 'memos'].forEach(list => $('#ml-' + list).addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const id = b.closest('.mi').dataset.id, act = b.dataset.act;
+  if (id.startsWith('tmp')) return;
+  if (act === 'toggle') memoDo({memo: 'toggle', id}, m => m.forEach(i => { if (i.id === id) i.d = !i.d; }));
+  else memoDo({memo: 'del', id}, m => m.splice(m.findIndex(i => i.id === id), 1));
+}));
+document.querySelectorAll('[data-clear]').forEach(b => b.addEventListener('click', () => {
+  const list = b.dataset.clear; memoDo({memo: 'clear', list}, m => { for (let i = m.length - 1; i >= 0; i--) if (m[i].l === list && m[i].d) m.splice(i, 1); });
+}));
+setInterval(() => { if ($('#p-memos').classList.contains('active')) loadMemos(); }, 30000);
+
+/* ================= Jarvis : commandes vocales ================= */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const norm = x => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const spokenTime = d => d.getHours() + ' heures' + (d.getMinutes() ? ' ' + d.getMinutes() : '');
+let jvTimer = null, rec = null, frVoice = null;
+function pickVoice(){ if ('speechSynthesis' in window){ const v = speechSynthesis.getVoices(); frVoice = v.find(x => /^fr(-|_)FR/i.test(x.lang)) || v.find(x => /^fr/i.test(x.lang)) || null; } }
+if ('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function jvShow(heard, answer, listening){
+  const p = $('#jv'); p.classList.add('show'); p.classList.toggle('listening', !!listening);
+  if (heard != null) $('#jvHeard').textContent = heard;
+  if (answer != null) $('#jvAnswer').textContent = answer;
+  clearTimeout(jvTimer); if (!listening) jvTimer = setTimeout(() => p.classList.remove('show'), 7000);
+}
+function say(text, heard){
+  jvShow(heard, text, false);
+  if (cfg.voice !== false && 'speechSynthesis' in window){
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'fr-FR'; if (frVoice) u.voice = frVoice; u.rate = 1.05;
+    if (P.audio) { P.audio.volume = 0.25; u.onend = u.onerror = () => { if (P.audio) P.audio.volume = 1; }; }
+    speechSynthesis.speak(u);
+  }
+}
+function setMicUI(on){ ['#micBtn', '#cMic'].forEach(sel => { const b = $(sel); if (b) b.classList.toggle('on', on); }); }
+function listen(){
+  if (!SR){ say("La reconnaissance vocale n'est pas disponible sur cet appareil."); return; }
+  if (rec){ rec.stop(); return; }
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  rec = new SR(); rec.lang = 'fr-FR'; rec.interimResults = true; rec.maxAlternatives = 1; rec.continuous = false;
+  let final = '';
+  if (P.audio) P.audio.volume = 0.2;
+  setMicUI(true); jvShow('', "J'écoute…", true);
+  rec.onresult = e => {
+    let txt = ''; for (let i = 0; i < e.results.length; i++){ txt += e.results[i][0].transcript; if (e.results[i].isFinal) final = txt; }
+    jvShow('« ' + txt + ' »', "J'écoute…", true);
+  };
+  rec.onerror = e => {
+    const m = {'not-allowed': "Le micro n'est pas autorisé. Autorisez-le dans les réglages du navigateur.", 'no-speech': "Je n'ai rien entendu.", 'network': 'La reconnaissance vocale a besoin d\'Internet.'};
+    final = ''; say(m[e.error] || 'Le micro ne répond pas (' + e.error + ').');
+  };
+  rec.onend = () => {
+    rec = null; setMicUI(false); if (P.audio) P.audio.volume = 1;
+    if (final) handleCommand(final); else if ($('#jv').classList.contains('listening')) jvShow(null, "Je n'ai rien entendu.", false);
+  };
+  try { rec.start(); } catch (e) { rec = null; setMicUI(false); say('Impossible de démarrer le micro.'); }
+}
+if (SR){ $('#micBtn').onclick = listen; $('#cMic').onclick = listen; }
+else { $('#micBtn').style.display = 'none'; $('#cMic').style.display = 'none'; }
+$('#jv').addEventListener('click', () => { $('#jv').classList.remove('show'); if ('speechSynthesis' in window) speechSynthesis.cancel(); });
+
+// Mots-clés des radios : nom, nom de recherche et quelques surnoms
+const RADIO_ALIAS = {inter:['inter','france inter'], info:['franceinfo','france info','info'], icinord:['ici nord','france bleu','france bleu nord'],
+  rc:['radio classique','classique'], rire:['rire et chansons','rire chansons'], europe1:['europe 1','europe un'], europe2:['europe 2','europe deux'],
+  rtl2:['rtl 2','rtl deux'], radio6:['radio 6','radio six'], delta:['delta fm','delta'], cherie:['cherie fm','cherie'], mouv:['mouv','le mouv']};
+function findStation(t){
+  let best = null, len = 0;
+  STATIONS.forEach(st => {
+    const al = [norm(st.name), norm(st.q || '')].concat(RADIO_ALIAS[st.id] || []).filter(Boolean);
+    al.forEach(a => { if ((' ' + t + ' ').includes(' ' + a + ' ') && a.length > len){ best = st; len = a.length; } });
+  });
+  return best;
+}
+const TABS = {accueil:'home', maison:'home', mer:'sea', maree:'sea', marees:'sea', sante:'health', air:'health', pollen:'health', pollens:'health',
+  raccourci:'links', raccourcis:'links', liens:'links', agenda:'agenda', calendrier:'agenda', radio:'radios', radios:'radios', bus:'bus', memo:'memos', memos:'memos', notes:'memos', courses:'memos'};
+function weatherSpeech(tomorrow){
+  if (!S.weather) return "Je n'ai pas encore la météo.";
+  const D = S.weather.daily;
+  if (tomorrow){ const w = wmo(D.weather_code[1]); return `Demain : ${w[1].toLowerCase()}, de ${R(D.temperature_2m_min[1])} à ${R(D.temperature_2m_max[1])} degrés.`; }
+  const c = S.weather.current, w = wmo(c.weather_code, !c.is_day), H = S.weather.hourly, now = Date.now() / 1000;
+  let rain = '';
+  for (let i = 0; i < H.time.length; i++) if (H.time[i] > now && H.time[i] <= now + 6 * 3600 && H.precipitation_probability[i] >= 60){ rain = ` Risque de pluie vers ${new Date(H.time[i] * 1000).getHours()} heures.`; break; }
+  return `Il fait ${R(c.temperature_2m)} degrés, ${w[1].toLowerCase()}. Ressenti ${R(c.apparent_temperature)}. Maximum ${R(D.temperature_2m_max[0])}, minimum ${R(D.temperature_2m_min[0])}. Vent ${R(c.wind_speed_10m)} kilomètres heure.${rain}`;
+}
+function agendaSpeech(tomorrow){
+  if (!cfg.agendaUrl) return "L'agenda n'est pas configuré.";
+  if (!S.agenda) return "Je n'ai pas encore l'agenda.";
+  const t0 = day0(Date.now()) + (tomorrow ? DAY : 0), now = Date.now();
+  let evs = evOn(S.agenda, t0); if (!tomorrow) evs = evs.filter(e => e.a || e.e > now);
+  const when = tomorrow ? 'demain' : "aujourd'hui";
+  if (!evs.length) return tomorrow ? 'Rien de prévu demain.' : "Plus rien de prévu aujourd'hui.";
+  return `${evs.length} rendez-vous ${when} : ` + evs.slice(0, 6).map(e => (e.a ? 'toute la journée, ' : 'à ' + spokenTime(new Date(e.s)) + ', ') + e.t).join(' ; ') + '.';
+}
+function busSpeech(){
+  if (!S.bus) return S.busErr ? 'Les horaires de bus sont indisponibles.' : "Je n'ai pas encore les horaires du bus.";
+  const parts = S.bus.map(({list}) => {
+    const up = list.filter(d => d.t > Date.now()).slice(0, 2); if (!up.length) return '';
+    const m = up.map(d => { const x = Math.floor((d.t - Date.now()) / 60000); return x < 1 ? "à l'arrêt" : x < 60 ? x + ' minutes' : 'à ' + spokenTime(new Date(d.t)); });
+    return `vers ${shortDest(up[0].dest)}, ${m.join(', puis ')}`;
+  }).filter(Boolean);
+  return parts.length ? 'Prochain C3 ' + parts.join(' ; ') + '.' : 'Plus de bus C3 prévu.';
+}
+function tideSpeech(){
+  if (!S.tides || !S.tides.length) return "Je n'ai pas les marées.";
+  return S.tides.slice(0, 2).map((x, i) => (x.type === 'high' ? (i ? 'pleine mer' : 'Pleine mer') : (i ? 'basse mer' : 'Basse mer')) + ' à ' + spokenTime(new Date(x.t * 1000))).join(', puis ') + '.' +
+    (S.sea && S.sea.current && S.sea.current.sea_surface_temperature != null ? ` L'eau est à ${R(S.sea.current.sea_surface_temperature)} degrés.` : '');
+}
+function memoSpeech(list){
+  if (!S.memos) return 'Je charge les mémos, redemandez dans un instant.';
+  const it = S.memos.filter(i => i.l === list && !i.d);
+  if (!it.length) return list === 'courses' ? 'La liste de courses est vide.' : 'Aucun mémo.';
+  return (list === 'courses' ? 'Sur la liste de courses : ' : 'Vos mémos : ') + it.map(i => i.t).join(', ') + '.';
+}
+function handleCommand(raw){
+  const heard = '« ' + raw + ' »';
+  let t = norm(raw).replace(/^(jarvis|ok jarvis|dis jarvis)\s*/, '');
+  const has = re => re.test(t);
+  // --- mémos : « ajoute du pain à la liste de courses », « note appeler le garage »
+  let m = raw.match(/^\s*(?:jarvis[\s,]*)?(ajoute|rajoute|note|mets?)\s+(.+?)\s*(?:(?:à|a|aux|au|dans|sur)\s+(?:la\s+|les\s+|mes\s+)?(liste de courses|liste des courses|courses|liste|mémos?|memos?|notes?))\s*$/i);
+  // « ajoute du lait » (sans préciser) : liste de courses
+  if (!m && /^\s*(?:jarvis[\s,]*)?(ajoute|rajoute)\s+(?!un m[ée]mo)(.+)$/i.test(raw) && !findStation(t)) m = raw.match(/^\s*(?:jarvis[\s,]*)?(ajoute|rajoute)\s+(.+)$/i).concat(['courses']).slice(0, 4);
+  if (m || has(/^(note|ajoute un memo|nouveau memo)\b/)){
+    let text, list = 'courses';
+    if (m){ text = m[2]; list = /m[ée]mo|note/i.test(m[3] || '') ? 'memos' : 'courses'; }
+    else { text = raw.replace(/^\s*(?:jarvis[\s,]*)?(note|ajoute un m[ée]mo|nouveau m[ée]mo)\s*/i, ''); list = 'memos'; }
+    text = text.replace(/^(du|de la|des|de l'|un|une|le|la|les)\s+/i, m0 => list === 'courses' ? '' : m0).trim();
+    if (!text) return say('Que dois-je noter ?', heard);
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    if (!cfg.agendaUrl) return say("Les mémos ont besoin du script Google.", heard);
+    if (!S.memos) loadMemos().then(() => addMemo(text, list)); else addMemo(text, list);
+    return say(`J'ajoute « ${text} » ${list === 'courses' ? 'à la liste de courses' : 'aux mémos'}.`, heard);
+  }
+  if (has(/\b(liste de courses|courses|liste)\b/) && has(/\b(lis|lire|quoi|qu est ce|donne|montre|il y a|rappelle)\b|^(la )?(liste de courses|courses)$/)){
+    if (!S.memos) loadMemos().then(() => say(memoSpeech('courses'), heard)); else say(memoSpeech('courses'), heard); return;
+  }
+  if (has(/\b(memos?|notes?)\b/) && !has(/\bouvre|affiche\b/)){ if (!S.memos) loadMemos().then(() => say(memoSpeech('memos'), heard)); else say(memoSpeech('memos'), heard); return; }
+  // --- divers
+  if (has(/\bquelle heure\b|\bl heure\b/)) return say('Il est ' + spokenTime(new Date()) + '.', heard);
+  if (has(/\b(quel jour|on est quel|date)\b/)){ const d = new Date(); return say(`Nous sommes ${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}.`, heard); }
+  if (has(/^(merci|merci jarvis|super|parfait)\b/)) return say('Avec plaisir.', heard);
+  // --- mode voiture / cadre photo
+  if (has(/mode voiture/) && has(/\b(quitte|ferme|sors|arrete|desactive)\b/)){ setCar(false); return say('Mode voiture désactivé.', heard); }
+  if (has(/mode voiture/)){ setCar(true); return say('Mode voiture activé. Bonne route.', heard); }
+  if (has(/\b(cadre photo|diaporama|photos)\b/)){ say('Je lance le cadre photo.', heard); setTimeout(() => startFrame(true), 1500); return; }
+  // --- radio
+  if (has(/\b(stop|arrete|coupe|eteins|silence|pause|tais toi)\b/)){
+    const was = P.playing || P.busy; if (was) stopRadio(); if ('speechSynthesis' in window) speechSynthesis.cancel();
+    return jvShow(heard, was ? 'Radio arrêtée.' : "D'accord.", false);
+  }
+  if (has(/\b(suivante|station suivante|radio suivante|change de radio)\b/)){ stepStation(1); return say('Station suivante : ' + P.st.name + '.', heard); }
+  if (has(/\b(precedente|station precedente)\b/)){ stepStation(-1); return say('Station précédente : ' + P.st.name + '.', heard); }
+  const st = findStation(t);
+  if (st && (has(/\b(mets|met|lance|joue|ecoute|ecouter|passe|allume|radio|branche)\b/) || t === norm(st.name))){
+    playStation(st); return say('Je lance ' + st.name + '.', heard);
+  }
+  if (has(/\b(reprends|relance|remets)\b/) || t === 'radio' || t === 'la radio'){ playStation(P.st); return say('Je relance ' + P.st.name + '.', heard); }
+  // --- infos
+  if (has(/\b(bus|c3|car|autobus)\b/)) return say(busSpeech(), heard);
+  if (has(/\b(maree|marees|mer haute|mer basse|pleine mer|basse mer)\b/)) return say(tideSpeech(), heard);
+  if (has(/\b(meteo|temps|pluie|pleuvoir|il fait|temperature|parapluie|froid|chaud)\b/)) return say(weatherSpeech(has(/\bdemain\b/)), heard);
+  if (has(/\b(agenda|rendez vous|rdv|programme|planning|prevu)\b/)) return say(agendaSpeech(has(/\bdemain\b/)), heard);
+  if (has(/\b(air|pollution|pollen|pollens)\b/)){
+    const a = S.air && S.air.current, ai = aqiInfo(a ? a.european_aqi : null);
+    const pol = S.pollen ? S.pollen.filter(r => r.max >= 1).sort((x, y) => y.max - x.max)[0] : null;
+    return say(`Qualité de l'air : ${ai[0].toLowerCase()}.` + (pol ? ` Pollens : ${pol.name.toLowerCase()}, niveau ${pol.info[0].toLowerCase()}.` : ' Pas de pollen notable.'), heard);
+  }
+  // --- onglets
+  const o = t.match(/\b(ouvre|affiche|montre|va sur|va dans|onglet)\b.*?\b(\w+)$/);
+  if (o && TABS[o[2]]){ showTab(TABS[o[2]]); setCar(false); return say('Voilà.', heard); }
+  if (TABS[t]){ showTab(TABS[t]); return say('Voilà.', heard); }
+  if (has(/^(bonjour|salut|hello|coucou)\b/)) return say((new Date().getHours() < 18 ? 'Bonjour !' : 'Bonsoir !') + ' ' + weatherSpeech(false), heard);
+  say("Je n'ai pas compris. Essayez : « mets FIP », « prochain bus », « météo », « agenda de demain » ou « ajoute du pain à la liste de courses ».", heard);
+}
+
+/* ================= Cadre photo la nuit ================= */
+let lastAct = Date.now(), frameOn = false, frameTimer = null, frameFlip = false, lastObjUrl = null;
+// Photos de l'appareil : gardées dans la base locale du navigateur (IndexedDB), jamais envoyées.
+const PDB = {
+  db: null,
+  open(){ return this.db ? Promise.resolve(this.db) : new Promise((ok, ko) => {
+    const r = indexedDB.open('maison-photos', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('photos', {autoIncrement: true});
+    r.onsuccess = () => { this.db = r.result; ok(this.db); }; r.onerror = () => ko(r.error);
+  }); },
+  req(mode, fn){ return this.open().then(db => new Promise((ok, ko) => {
+    const st = db.transaction('photos', mode).objectStore('photos'), r = fn(st);
+    r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+  })); },
+  add(rec){ return this.req('readwrite', st => st.add(rec)); },
+  keys(){ return this.req('readonly', st => st.getAllKeys ? st.getAllKeys() : st.openCursor()).then(k => Array.isArray(k) ? k : []); },
+  get(k){ return this.req('readonly', st => st.get(k)); },
+  clear(){ return this.req('readwrite', st => st.clear()); },
+  count(){ return this.req('readonly', st => st.count()); }
+};
+const readBuf = blob => new Promise((ok, ko) => { const f = new FileReader(); f.onload = () => ok(f.result); f.onerror = ko; f.readAsArrayBuffer(blob); });
+// Réduit une photo (1920 px maximum) avant de l'enregistrer.
+function shrinkPhoto(file){
+  return new Promise((ok, ko) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1920 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      c.toBlob(b => b ? ok(b) : ko(new Error('conversion')), 'image/jpeg', 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); ko(new Error('image illisible')); };
+    img.src = url;
+  });
+}
+async function refreshPhotoCount(){
+  try { const n = await PDB.count(); $('#photoCount').textContent = n ? n + ' photo' + (n > 1 ? 's' : '') + ' sur cet appareil' : 'Aucune photo enregistrée'; }
+  catch (e) { $('#photoCount').textContent = 'Stockage des photos indisponible sur ce navigateur'; }
+}
+$('#photoPick').onclick = () => $('#photoFile').click();
+$('#photoFile').onchange = async () => {
+  const files = [...$('#photoFile').files]; let ok = 0;
+  for (let i = 0; i < files.length; i++){
+    $('#photoCount').textContent = `Import ${i + 1} / ${files.length}…`;
+    try { const b = await shrinkPhoto(files[i]); await PDB.add({type: 'image/jpeg', buf: await readBuf(b), at: Date.now()}); ok++; } catch (e) {}
+  }
+  $('#photoFile').value = ''; toast(ok + ' photo' + (ok > 1 ? 's' : '') + ' ajoutée' + (ok > 1 ? 's' : '')); refreshPhotoCount();
+};
+$('#photoClear').onclick = async () => { if (confirm('Effacer toutes les photos enregistrées sur cet appareil ?')){ await PDB.clear(); refreshPhotoCount(); } };
+['pointerdown', 'touchstart', 'keydown', 'wheel', 'mousemove'].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, {passive: true}));
+const hmToMin = x => { const m = String(x || '').match(/(\d+):(\d+)/); return m ? +m[1] * 60 + +m[2] : 0; };
+function inPhotoWindow(){
+  const n = new Date(), cur = n.getHours() * 60 + n.getMinutes(), a = hmToMin(cfg.photoStart), b = hmToMin(cfg.photoEnd);
+  if (a === b) return true;
+  return a < b ? (cur >= a && cur < b) : (cur >= a || cur < b);
+}
+async function nextPhotoUrl(){
+  if (cfg.photoSrc !== 'picsum'){
+    try{
+      const keys = await PDB.keys();
+      if (keys.length){
+        const rec = await PDB.get(keys[Math.floor(Math.random() * keys.length)]);
+        if (rec && rec.buf){ if (lastObjUrl) setTimeout((u => () => URL.revokeObjectURL(u))(lastObjUrl), 5000);
+          lastObjUrl = URL.createObjectURL(new Blob([rec.buf], {type: rec.type || 'image/jpeg'})); return lastObjUrl; }
+      }
+    }catch(e){}
+  }
+  const w = Math.min(1920, Math.round(screen.width * (window.devicePixelRatio || 1))), h = Math.min(1920, Math.round(screen.height * (window.devicePixelRatio || 1)));
+  return `https://picsum.photos/${Math.max(w, h)}/${Math.min(w, h)}?random=${Date.now()}`;
+}
+async function showNextPhoto(){
+  const url = await nextPhotoUrl();
+  const img = new Image();
+  img.onload = () => {
+    if (!frameOn) return;
+    const a = $('#fImgA'), b = $('#fImgB'), show = frameFlip ? a : b, hide = frameFlip ? b : a;
+    show.src = url; show.classList.add('vis'); hide.classList.remove('vis'); frameFlip = !frameFlip;
+  };
+  img.src = url;
+}
+function frameClock(){ const d = new Date(); $('#fClock').textContent = hm(d); $('#fDate').textContent = JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()] + (S.weather ? ' · ' + R(S.weather.current.temperature_2m) + '°' : ''); }
+let frameTimer2 = null, frameForced = false;
+function startFrame(force){
+  if (frameOn) return;
+  frameOn = true; frameForced = !!force; $('#frame').classList.add('on'); $('#fDim').style.opacity = (cfg.photoDim || 0) / 100;
+  frameClock(); showNextPhoto(); keepAwake();
+  frameTimer = setInterval(frameClock, 1000);        // horloge
+  frameTimer2 = setInterval(showNextPhoto, 20000);   // nouvelle photo toutes les 20 s
+}
+function stopFrame(){
+  frameOn = false; $('#frame').classList.remove('on'); clearInterval(frameTimer); clearInterval(frameTimer2);
+  $('#fImgA').classList.remove('vis'); $('#fImgB').classList.remove('vis'); lastAct = Date.now();
+}
+$('#frame').addEventListener('click', stopFrame);
+$('#frame').addEventListener('touchstart', e => { e.preventDefault(); stopFrame(); }, {passive: false});
+setInterval(() => {
+  if (frameOn){ if (!frameForced && (!cfg.photoOn || !inPhotoWindow())) stopFrame(); return; }
+  if (!cfg.photoOn || !inPhotoWindow() || document.body.classList.contains('car') || $('#modal').classList.contains('open') || rec) return;
+  if (Date.now() - lastAct > (cfg.photoIdle || 5) * 60000) startFrame();
+}, 15000);
+$('#photoTest').onclick = () => { $('#modal').classList.remove('open'); cfg.photoSrc = $('#sPhotoSrc').value; cfg.photoDim = +$('#sPhotoDim').value; startFrame(true); };
+$('#sPhotoDim').oninput = () => { $('#sPhotoDimV').textContent = $('#sPhotoDim').value + ' %'; };
+
+
 
 
 const FETES = [
@@ -1459,6 +1868,7 @@ async function loadBus(){
       let list = busParse(await busFetch(stop, today)).filter(d => d.t > now - 60000);
       if (list.length < 3) list = list.concat(busParse(await busFetch(stop, today + 86400)).filter(d => d.t > now - 60000));
       list.sort((a, b) => a.t - b.t);
+      list = list.filter((d, i) => !i || d.t !== list[i - 1].t || d.dest !== list[i - 1].dest);   // sans doublons
       return {stop, list};
     }));
     S.bus = res; S.busErr = null; S.busUpd = Date.now();
@@ -1524,6 +1934,8 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden){ kee
 function fillSettings(c){
   $('#sAgenda').value = c.agendaUrl || '';
   $('#sBusHor').value = c.busHor || ''; $('#sBusMap').value = c.busMap || '';
+  $('#sVoice').checked = c.voice !== false; $('#sPhotoOn').checked = !!c.photoOn; $('#sPhotoStart').value = c.photoStart || '22:00'; $('#sPhotoEnd').value = c.photoEnd || '07:00';
+  $('#sPhotoIdle').value = String(c.photoIdle || 5); $('#sPhotoSrc').value = c.photoSrc === 'picsum' ? 'picsum' : 'local'; refreshPhotoCount(); $('#sPhotoDim').value = c.photoDim != null ? c.photoDim : 30; $('#sPhotoDimV').textContent = $('#sPhotoDim').value + ' %';
   $('#sHome').value = c.homeAddr || ''; $('#sNavApp').value = c.navApp || 'gmaps'; $('#sCarStart').checked = !!c.carStart;
   const old = cfg; cfg = c; document.querySelectorAll('[data-show]').forEach(i => { i.checked = vis(i.dataset.show); }); cfg = old;
   $('#sCity').value = c.city; $('#sDevice').value = c.device;
@@ -1539,6 +1951,8 @@ $('#save').onclick = () => {
   cfg.device = $('#sDevice').value.trim();
   cfg.radioStream = $('#sStream').value.trim(); cfg.npUrl = $('#sNp').value.trim();
   if (P.st.id === 'rc' && P.playing) stopRadio(); loadNowPlaying();
+  cfg.voice = $('#sVoice').checked; cfg.photoOn = $('#sPhotoOn').checked; cfg.photoStart = $('#sPhotoStart').value || '22:00'; cfg.photoEnd = $('#sPhotoEnd').value || '07:00';
+  cfg.photoIdle = +$('#sPhotoIdle').value || 5; cfg.photoSrc = $('#sPhotoSrc').value; cfg.photoDim = +$('#sPhotoDim').value;
   cfg.homeAddr = $('#sHome').value.trim(); cfg.navApp = $('#sNavApp').value; cfg.carStart = $('#sCarStart').checked;
   cfg.show = {}; document.querySelectorAll('[data-show]').forEach(i => { cfg.show[i.dataset.show] = i.checked; });
   delete cfg.alwaysTiles;
