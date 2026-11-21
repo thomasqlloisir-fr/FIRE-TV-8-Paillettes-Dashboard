@@ -106,7 +106,12 @@
   .hb-row .t small{color:var(--muted);font-size:12px;margin-right:8px}
   .hb-row .t .lv{color:var(--good);font-size:11px}
   @media (min-width:1150px) and (min-height:740px){ .hb-row{font-size:17px;padding:5px 0} .hb-row .t b{font-size:21px} .homebus .hl{font-size:14px} }
-  .today h2{margin-bottom:6px}
+  .today h2{margin-bottom:4px;cursor:pointer;position:sticky;top:0;background:var(--card);z-index:1;padding-bottom:2px}
+  .today{overflow-y:auto !important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;position:relative}
+  .today .ev.past{opacity:.45}
+  .today .ev.cur .tm{color:var(--accent)}
+  .today .dh{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:6px 0 2px;font-weight:600}
+  .today .ev .lo{color:var(--muted);font-size:12px;margin-left:6px}
   .today .ev{display:flex;align-items:center;gap:10px;padding:4px 0;font-size:15px;min-width:0}
   .today .ev .tm{flex:0 0 auto;width:62px;font-weight:600;font-variant-numeric:tabular-nums}
   .today .ev .ti{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -454,7 +459,7 @@
         <button class="rbtn" id="radioWeb" title="Toutes les radios">📻</button>
       </section>
       <section class="card brief">
-        <button class="today" id="today" data-tab="agenda"></button>
+        <div class="today" id="today"></div>
         <button class="homebus" id="homeBus" data-tab="bus"></button>
         <div class="brief-grid" id="brief"></div>
       </section>
@@ -922,7 +927,11 @@ function renderBrief(){
   $('#brief').innerHTML = shown.map(i => `<button class="bi" data-tab="${i.tab}"><span class="l">${i.l}</span><span class="v">${i.v}</span><span class="s">${esc(i.s)}</span></button>`).join('');
 }
 $('#brief').addEventListener('click', e => { const b = e.target.closest('.bi'); if (b) showTab(b.dataset.tab); });
-$('#today').addEventListener('click', () => showTab('agenda'));
+$('#today').addEventListener('click', e => { if (e.target.closest('h2')) showTab('agenda'); });
+// si l'utilisateur fait défiler l'agenda, on ne le repositionne plus automatiquement pendant 2 minutes
+['touchstart', 'wheel'].forEach(ev => $('#today').addEventListener(ev, () => {
+  const b = $('#today'); b._userScrolled = true; clearTimeout(b._us); b._us = setTimeout(() => { b._userScrolled = false; }, 120000);
+}, {passive: true}));
 
 /* ================= Agenda Google ================= */
 const DAY = 864e5;
@@ -983,22 +992,23 @@ function renderAgenda(){
     box.innerHTML = `<h2>📅 Aujourd'hui</h2><div class="more">${S.agendaErr ? 'Agenda indisponible' : 'Chargement de l\'agenda…'}</div>`;
     return;
   }
-  const now = Date.now(), todays = evOn(S.agenda, t0);
-  const left = todays.filter(e => e.a || e.e > now);
-  const tomorrow = evOn(S.agenda, t0 + DAY);
-  let html = `<h2><span>📅 Aujourd'hui</span><small>${todays.length ? todays.length + ' rendez-vous' : ''} ›</small></h2>`;
-  if (left.length){
-    const MAXEV = window.innerWidth > 760 ? 2 : 3;
-    html += left.slice(0, MAXEV).map(e => `<div class="ev"><i class="cbar" style="background:${esc(e.c || '#4f9cff')}"></i><span class="tm">${evTime(e, t0)}</span><span class="ti">${esc(e.t)}</span></div>`).join('');
-    if (left.length > MAXEV && MAXEV === 3) html += `<div class="more">+ ${left.length - MAXEV} autre(s) aujourd'hui</div>`;
-  } else {
-    html += `<div class="ev"><span class="ti" style="color:var(--muted)">${todays.length ? 'Plus rien de prévu aujourd\'hui' : 'Rien de prévu aujourd\'hui'}</span></div>`;
-  }
-  if (tomorrow.length && left.length < 2){
-    const f = tomorrow[0];
-    html += `<div class="more">Demain : ${f.a ? '' : hm(new Date(f.s)) + ' · '}${esc(f.t)}${tomorrow.length > 1 ? ' (+' + (tomorrow.length - 1) + ')' : ''}</div>`;
-  }
+  const now = Date.now(), todays = evOn(S.agenda, t0), tomorrow = evOn(S.agenda, t0 + DAY);
+  // tous les rendez-vous du jour (passés en grisé) et tous ceux du lendemain ; l'encart défile s'il y en a beaucoup
+  const row = (e, d0) => {
+    const past = !e.a && e.e <= now, cur = !e.a && e.s <= now && e.e > now;
+    return `<div class="ev${past ? ' past' : ''}${cur ? ' cur' : ''}"><i class="cbar" style="background:${esc(e.c || '#4f9cff')}"></i>` +
+      `<span class="tm">${evTime(e, d0)}</span><span class="ti">${esc(e.t)}${e.l ? `<span class="lo">📍 ${esc(e.l)}</span>` : ''}</span></div>`;
+  };
+  const dT = new Date(t0 + DAY);
+  let html = `<h2><span>📅 Aujourd'hui et demain</span><small>Agenda ›</small></h2>`;
+  html += `<div class="dh">Aujourd'hui${todays.length ? ' · ' + todays.length : ''}</div>`;
+  html += todays.length ? todays.map(e => row(e, t0)).join('') : `<div class="ev"><span class="ti" style="color:var(--muted)">Rien de prévu</span></div>`;
+  html += `<div class="dh">Demain · ${JOURS[dT.getDay()]} ${dT.getDate()}${tomorrow.length ? ' · ' + tomorrow.length : ''}</div>`;
+  html += tomorrow.length ? tomorrow.map(e => row(e, t0 + DAY)).join('') : `<div class="ev"><span class="ti" style="color:var(--muted)">Rien de prévu</span></div>`;
   box.innerHTML = html;
+  // fait défiler jusqu'au prochain rendez-vous du jour
+  const next = box.querySelector('.ev.cur') || [...box.querySelectorAll('.ev')].find(x => !x.classList.contains('past'));
+  if (next && !box._userScrolled) box.scrollTop = Math.max(0, next.offsetTop - box.querySelector('h2').offsetHeight - 4);
   renderCar();
 }
 
@@ -1020,8 +1030,10 @@ const LINKS = [
 ];
 const IS_ANDROID = /Android/i.test(navigator.userAgent);
 // Lien Android qui demande l'ouverture d'une adresse dans une application précise ; si elle est absente, on reste dans le navigateur.
-const appLink = (url, pkg) => { const x = new URL(url);
-  return `intent://${x.host}${x.pathname}${x.search}#Intent;scheme=https;package=${pkg};S.browser_fallback_url=${encodeURIComponent(url)};end`; };
+// newTab : demande au navigateur (Brave, Chrome) d'ouvrir un nouvel onglet au lieu de réutiliser le précédent.
+const appLink = (url, pkg, newTab) => { const x = new URL(url);
+  const extra = newTab ? `B.create_new_tab=true;S.com.android.browser.application_id=maison-${Date.now()};` : '';
+  return `intent://${x.host}${x.pathname}${x.search}#Intent;scheme=https;package=${pkg};${extra}S.browser_fallback_url=${encodeURIComponent(url)};end`; };
 function openLink(it, nav){
   if (!IS_ANDROID){ window.open(it.u, '_blank'); return; }           // iPad / iPhone / ordinateur : navigateur habituel
   if (it.app){
@@ -1029,7 +1041,7 @@ function openLink(it, nav){
     if (/Silk/i.test(navigator.userAgent)){ window.location.href = app(it.app); return; }
     window.location.href = appLink(it.u, it.app); return;
   }
-  window.location.href = appLink(it.u, PKG[nav]);
+  window.location.href = appLink(it.u, PKG[nav], true);
 }
 function renderLinks(){
   const html = LINKS.map((grp, gi) => {
@@ -1101,8 +1113,10 @@ const STATIONS = [
   {g:'Nationales', id:'fun', name:'Fun Radio', b:'Fun', c:'#e5007d', q:'Fun Radio'},
   {g:'Nationales', id:'europe1', name:'Europe 1', b:'E1', c:'#1a1aa6', q:'Europe 1'},
   {g:'Nationales', id:'europe2', name:'Europe 2', b:'E2', c:'#00a0e1', q:'Europe 2'},
-  {g:'Nationales', id:'rmc', name:'RMC', b:'RMC', c:'#004b93', q:'RMC'},
-  {g:'Nationales', id:'bfm', name:'BFM Business', b:'BFM', c:'#00346b', q:'BFM Business'},
+  {g:'Nationales', id:'rmc', name:'RMC', b:'RMC', c:'#004b93', q:'RMC',
+    urls:['https://audio.bfmtv.com/rmcradio_128.mp3', 'https://audio.bfmtv.com/rmcradio_64.mp3']},
+  {g:'Nationales', id:'bfm', name:'BFM Business', b:'BFM', c:'#00346b', q:'BFM Business',
+    urls:['https://audio.bfmtv.com/bfmbusiness_128.mp3']},
   {g:'Nationales', id:'sud', name:'Sud Radio', b:'Sud', c:'#e30613', q:'Sud Radio'},
   {g:'Nationales', id:'nrj', name:'NRJ', b:'NRJ', c:'#d6001c', q:'NRJ'},
   {g:'Nationales', id:'nostalgie', name:'Nostalgie', b:'Nosta.', c:'#e85d04', q:'Nostalgie'},
@@ -1132,23 +1146,24 @@ const OK_KEY = 'radio-stream-ok';   // dernière adresse qui a fonctionné, par 
 let okCache = {}; try { okCache = JSON.parse(localStorage.getItem(OK_KEY) || '{}'); } catch (e) {}
 const RB_KEY = 'radio-stream-cache';
 let rbCache = {}; try { rbCache = JSON.parse(localStorage.getItem(RB_KEY) || '{}'); } catch (e) {}
+// Renvoie jusqu'à 5 flux https candidats trouvés dans l'annuaire, du plus populaire au moins populaire.
 async function rbLookup(st){
   for (const h of ['de1', 'de2', 'fi1', 'nl1']){
     try{
       const list = await getJSON(`https://${h}.api.radio-browser.info/json/stations/search?name=${encodeURIComponent(st.q || st.name)}` +
-        '&countrycode=FR&hidebroken=true&order=votes&reverse=true&limit=10');
-      const ok = list.find(x => (x.url_resolved || '').startsWith('https://'));
-      if (ok){ rbCache[st.id] = ok.url_resolved; try { localStorage.setItem(RB_KEY, JSON.stringify(rbCache)); } catch (e) {} return ok.url_resolved; }
-      return null;
+        '&countrycode=FR&hidebroken=true&order=votes&reverse=true&limit=15');
+      return [...new Set(list.map(x => x.url_resolved || '').filter(u => u.startsWith('https://')))].slice(0, 5);
     }catch(e){}
   }
-  return null;
+  return [];
 }
+// Essaie de lancer un flux ; abandonne au bout de 10 s s'il ne démarre pas.
 function tryPlay(url){
   return new Promise((ok, ko) => {
     const a = new Audio(url);
-    a.onerror = () => ko(new Error('flux'));
-    a.play().then(() => ok(a)).catch(ko);
+    const t = setTimeout(() => { a.pause(); a.removeAttribute('src'); ko(new Error('délai')); }, 10000);
+    a.onerror = () => { clearTimeout(t); ko(new Error('flux')); };
+    a.play().then(() => { clearTimeout(t); ok(a); }).catch(e => { clearTimeout(t); ko(e); });
   });
 }
 function stopRadio(){
@@ -1167,16 +1182,21 @@ async function playStation(st){
     tried.add(u);
     try { audio = await tryPlay(u); okCache[st.id] = u; break; } catch (e) {}
   }
-  if (!audio && P.st === st){ // rien ne marche : on cherche dans l'annuaire
-    const u = await rbLookup(st);
-    if (u && !tried.has(u)){ try { audio = await tryPlay(u); okCache[st.id] = u; } catch (e) {} }
+  if (!audio && P.st === st){ // rien ne marche : on cherche dans l'annuaire et on essaie chaque résultat
+    for (const u of await rbLookup(st)){
+      if (tried.has(u) || P.st !== st) continue;
+      tried.add(u);
+      try { audio = await tryPlay(u); okCache[st.id] = u; rbCache[st.id] = u; break; } catch (e) {}
+    }
+    try { localStorage.setItem(RB_KEY, JSON.stringify(rbCache)); } catch (e) {}
   }
+  if (!audio){ delete okCache[st.id]; delete rbCache[st.id]; try { localStorage.setItem(RB_KEY, JSON.stringify(rbCache)); } catch (e) {} }
   try { localStorage.setItem(OK_KEY, JSON.stringify(okCache)); } catch (e) {}
   if (P.st !== st){ if (audio) audio.pause(); return; } // l'utilisateur a changé de station entre-temps
   P.busy = false;
   if (!audio){ toast(st.name + ' : flux indisponible'); renderPlayer(); return; }
   P.audio = audio; P.playing = true;
-  audio.onerror = () => { stopRadio(); toast(st.name + ' : flux interrompu'); };
+  audio.onerror = () => { delete okCache[st.id]; try { localStorage.setItem(OK_KEY, JSON.stringify(okCache)); } catch (e) {} stopRadio(); toast(st.name + ' : flux interrompu'); };
   renderPlayer();
 }
 function togglePlay(){ if (P.playing || P.busy){ P.busy = false; stopRadio(); } else playStation(P.st); }
