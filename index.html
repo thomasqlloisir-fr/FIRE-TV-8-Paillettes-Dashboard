@@ -1029,6 +1029,7 @@ const LINKS = [
     {id:'chatgpt', n:'ChatGPT', d:'application', u:'https://chatgpt.com/', app:'com.openai.chatgpt', c:'#10a37f', b:'GPT'}]},
 ];
 const IS_ANDROID = /Android/i.test(navigator.userAgent);
+const IN_BRAVE = !!(navigator.brave && typeof navigator.brave.isBrave === 'function'); // le tableau de bord tourne déjà dans Brave
 // Lien Android qui demande l'ouverture d'une adresse dans une application précise ; si elle est absente, on reste dans le navigateur.
 // newTab : demande au navigateur (Brave, Chrome) d'ouvrir un nouvel onglet au lieu de réutiliser le précédent.
 const appLink = (url, pkg, newTab) => { const x = new URL(url);
@@ -1041,6 +1042,7 @@ function openLink(it, nav){
     if (/Silk/i.test(navigator.userAgent)){ window.location.href = app(it.app); return; }
     window.location.href = appLink(it.u, it.app); return;
   }
+  if (nav === 'brave' && IN_BRAVE){ window.open(it.u, '_blank'); return; }   // déjà dans Brave : simple nouvel onglet
   window.location.href = appLink(it.u, PKG[nav], true);
 }
 function renderLinks(){
