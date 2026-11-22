@@ -168,8 +168,23 @@
   .c-ctrl .pp{width:112px;height:112px;background:var(--accent);color:#fff;font-size:46px}
   .c-ev .t{font-size:26px;font-weight:700;line-height:1.2}
   .c-ev .w{font-size:19px;color:var(--muted);margin-top:4px}
-  .c-btns{display:flex;gap:12px;margin-top:auto;padding-top:14px}
-  .c-btns button{flex:1;height:76px;border-radius:18px;font-size:21px;font-weight:700;background:var(--card2)}
+  .c-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:auto;padding-top:14px}
+  .c-btns button{height:72px;border-radius:18px;font-size:16px;font-weight:700;background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 4px;line-height:1.1;white-space:nowrap}
+  .c-btns button i{font-style:normal;font-size:24px;line-height:1}
+  .c-btns .wa{background:#1fa855;color:#fff}
+  .c-btns .sms{background:#2f80ed;color:#fff}
+  .c-lbl{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .c-pickbtn{font-size:17px;font-weight:700;background:var(--accent);color:#fff;border-radius:14px;padding:10px 16px;text-transform:none;letter-spacing:0}
+  #cPick{position:absolute;top:0;right:0;bottom:0;left:0;background:#05070c;z-index:5;display:none;flex-direction:column;padding:inherit}
+  #cPick.on{display:flex}
+  .cp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cp-head b{font-size:26px}
+  .cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;overflow-y:auto;min-height:0;align-content:start;padding-bottom:10px}
+  .cp-st{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px;min-height:84px;text-align:left}
+  .cp-st.on{border-color:var(--accent);background:#1d3157}
+  .cp-st .badge{width:58px;height:58px;font-size:16px;border-radius:14px}
+  .cp-st span{font-size:19px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .cp-sep{grid-column:1 / -1;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
   .c-btns .go{background:var(--good);color:#04130a}
   .c-btns button[hidden]{display:none}
   @media (orientation:portrait){
@@ -183,7 +198,7 @@
   @media (max-height:480px){
     .c-clock{font-size:52px} .c-wx{font-size:28px} .c-exit{width:52px;height:52px}
     .c-ctrl button{width:66px;height:66px;font-size:26px} .c-ctrl .pp{width:84px;height:84px;font-size:34px}
-    .c-st .badge{width:56px;height:56px} .c-st .n{font-size:22px} .c-ev .t{font-size:21px} .c-btns button{height:60px;font-size:18px}
+    .c-st .badge{width:56px;height:56px} .c-st .n{font-size:22px} .c-ev .t{font-size:21px} .c-btns button{height:54px;font-size:13px} .c-btns button i{font-size:19px} .c-btns{gap:8px;padding-top:8px} .c-pickbtn{padding:7px 12px;font-size:15px}
   }
 
   /* Bus */
@@ -678,7 +693,7 @@
     <button class="c-exit" id="cExit" title="Quitter le mode voiture">✕</button>
   </div>
   <div class="c-box">
-    <div class="c-lbl">📻 Radio</div>
+    <div class="c-lbl"><span>📻 Radio</span><button class="c-pickbtn" id="cPickBtn">📻 Changer de radio</button></div>
     <div class="c-st" id="cSt"></div>
     <div class="c-ctrl">
       <button id="cPrev" title="Station précédente">⏮</button>
@@ -690,10 +705,16 @@
     <div class="c-lbl" id="cEvLbl">📅 Prochain rendez-vous</div>
     <div class="c-ev" id="cEv"></div>
     <div class="c-btns">
-      <button class="go" id="cGo" hidden>🧭 Y aller</button>
-      <button id="cHome" hidden>🏠 Maison</button>
-      <button id="cNav">🗺️ GPS</button>
+      <button class="go" id="cGo" hidden><i>🧭</i>Y aller</button>
+      <button id="cHome" hidden><i>🏠</i>Maison</button>
+      <button id="cNav"><i>🗺️</i>GPS</button>
+      <button class="wa" id="cWa"><i>💬</i>WhatsApp</button>
+      <button class="sms" id="cSms"><i>✉️</i>Messages</button>
     </div>
+  </div>
+  <div id="cPick">
+    <div class="cp-head"><b>📻 Choisir une radio</b><button class="c-exit" id="cPickClose" title="Fermer">✕</button></div>
+    <div class="cp-grid" id="cPickGrid"></div>
   </div>
 </div>
 
@@ -1434,6 +1455,28 @@ $('#cPlay').onclick = togglePlay;
 $('#cPrev').onclick = () => stepStation(-1);
 $('#cNext').onclick = () => stepStation(1);
 $('#cHome').onclick = () => { if (cfg.homeAddr) window.location.href = navUrl(cfg.homeAddr); };
+// --- choix de la radio dans le mode voiture (favoris d'abord, puis les autres, par ordre alphabétique)
+function openCarPicker(){
+  const st = P.st, on = P.playing || P.busy;
+  const tile = x => `<button class="cp-st${x.id === st.id && on ? ' on' : ''}" data-cst="${x.id}">${badge(x)}<span>${esc(x.name)}</span></button>`;
+  const favs = STATIONS.filter(isFav).sort(byName), others = STATIONS.filter(x => !isFav(x)).sort(byName);
+  $('#cPickGrid').innerHTML = (favs.length ? '<div class="cp-sep">⭐ Favoris</div>' + favs.map(tile).join('') + '<div class="cp-sep">Autres radios</div>' : '') + others.map(tile).join('');
+  $('#cPick').classList.add('on');
+}
+$('#cPickBtn').onclick = openCarPicker;
+$('#cPickClose').onclick = () => $('#cPick').classList.remove('on');
+$('#cPickGrid').addEventListener('click', e => {
+  const b = e.target.closest('[data-cst]'); if (!b) return;
+  playStation(stById(b.dataset.cst)); $('#cPick').classList.remove('on');
+});
+// --- WhatsApp et Messages
+$('#cWa').onclick = () => {
+  if (window.fully && typeof fully.startApplication === 'function'){ try { fully.startApplication('com.whatsapp'); return; } catch (e) {} }
+  if (/Silk/i.test(navigator.userAgent)){ window.location.href = app('com.whatsapp'); return; }
+  // Android (Chrome, Brave) : WhatsApp s'ouvre sur le choix du contact ; iPhone : application WhatsApp
+  window.location.href = IS_ANDROID ? 'intent://send/#Intent;scheme=whatsapp;package=com.whatsapp;end' : 'whatsapp://';
+};
+$('#cSms').onclick = () => { window.location.href = 'sms:'; };   // application de SMS par défaut, nouveau message
 $('#cNav').onclick = () => { window.location.href = cfg.navApp === 'waze' ? 'https://waze.com/ul' : 'https://www.google.com/maps/@?api=1&map_action=map'; };
 setInterval(renderCar, 15000);
 
