@@ -390,6 +390,11 @@
   @media (max-height:480px) and (min-width:700px){
     .page{grid-template-columns:1.05fr 1fr}
   }
+  /* Smartphone (portrait) : accueil réordonné — 1 radio, 2 agenda, 3 tuiles, puis le reste */
+  @media (max-width:760px){
+    #p-home .col{display:contents}
+    #radioCard{order:1} #p-home .brief{order:2} #p-home .apps{order:3} #weather{order:4} #ephem{order:5}
+  }
   @media (max-width:760px){
     header{grid-template-columns:1fr auto}
     .tabs{grid-column:1 / -1;grid-row:2;justify-self:stretch}
@@ -497,7 +502,7 @@
     <div class="col" id="homeRight" style="grid-template-rows:auto auto 1fr">
       <section class="apps">
         <button class="tile music" data-app="music"><span class="ic">🎵</span>
-          <span><div class="t">Amazon Music</div><div class="s">Ouvrir la musique</div></span></button>
+          <span><div class="t">Amazon Music</div><div class="s">music.amazon.fr</div></span></button>
         <button class="tile alexa" data-app="alexa"><span class="ic">💬</span>
           <span><div class="t">Alexa</div><div class="s">Maison connectée</div></span></button>
         <button class="tile tapo" data-app="tapo"><span class="ic">🔌</span>
@@ -539,7 +544,7 @@
   <main class="page" id="p-links">
     <section class="card"><h2>Raccourcis</h2>
       <div id="links"></div>
-      <p class="note">Sur Android, chaque raccourci s'ouvre dans le navigateur indiqué (Brave ou Chrome) ou dans l'application ChatGPT ; s'ils ne sont pas installés, la page s'ouvre dans le navigateur actuel. Sur iPad, tout s'ouvre dans Safari.</p>
+      <p class="note">Sur Android, les raccourcis « Brave » et « Chrome » s'ouvrent dans un nouvel onglet du navigateur indiqué (s'il n'est pas installé, dans le navigateur actuel). Le raccourci Brave ouvre sa page d'accueil de recherche. Sur iPad, tout s'ouvre dans Safari.</p>
     </section>
   </main>
 
@@ -745,7 +750,7 @@ const DEFAULTS = {
   npUrl: 'https://www.radioclassique.fr/direct-metadata/current.json',
   favs: ['Radio Classique', 'de la musique classique', 'de la musique relaxante'],
   apps: {
-    music: app('com.amazon.mp3'),
+    music: 'https://music.amazon.fr/',
     alexa: app('com.amazon.dee.app'),
     tapo:  app('com.tplink.iot'),
     mi:    app('com.xiaomi.smarthome')
@@ -761,6 +766,8 @@ try {
 delete cfg.plugs; // ancien bloc « prises », supprimé
 if (!cfg.npUrl) cfg.npUrl = DEFAULTS.npUrl;
 Object.keys(cfg.apps).forEach(k => { if (cfg.apps[k]) cfg.apps[k] = cfg.apps[k].replace(/;S\.browser_fallback_url=[^;]*/, ''); });
+// Amazon Music : désormais la version web (music.amazon.fr) au lieu de l'application
+if (/package=com\.amazon\.mp3/.test(cfg.apps.music || '')) cfg.apps.music = DEFAULTS.apps.music;
 const saveCfg = () => { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} };
 
 /* ================= Outils ================= */
@@ -1129,6 +1136,7 @@ function renderAgenda(){
 const PKG = {brave: 'com.brave.browser', chrome: 'com.android.chrome'};
 const LINKS = [
   {g:'Dans Brave', nav:'brave', items:[
+    {id:'brave', n:'Brave', d:"page d'accueil", u:'https://search.brave.com/', c:'#fb542b', b:'🦁'},
     {id:'youtube', n:'YouTube', d:'m.youtube.com', u:'https://m.youtube.com/?app=m&persist_app=1', c:'#ff0000', b:'▶'},
     {id:'autotitre', n:'Auto Titre', d:'autotitre.com', u:'https://www.autotitre.com/', c:'#e30613', b:'AT'},
     {id:'lesnum', n:'Les Numériques', d:'lesnumeriques.com', u:'https://www.lesnumeriques.com/', c:'#222222', b:'LN'},
@@ -1137,9 +1145,8 @@ const LINKS = [
     {id:'eurosport', n:'Eurosport', d:'eurosport.fr', u:'https://www.eurosport.fr/', c:'#141b4d', b:'ES'}]},
   {g:'Dans Google Chrome', nav:'chrome', items:[
     {id:'claude', n:'Claude', d:'claude.ai', u:'https://claude.ai/', c:'#d97757', b:'✳'},
+    {id:'chatgpt', n:'ChatGPT', d:'chatgpt.com', u:'https://chatgpt.com/', c:'#10a37f', b:'GPT'},
     {id:'github', n:'GitHub', d:'github.com', u:'https://github.com/', c:'#24292f', b:'GH'}]},
-  {g:'Applications', items:[
-    {id:'chatgpt', n:'ChatGPT', d:'application', u:'https://chatgpt.com/', app:'com.openai.chatgpt', c:'#10a37f', b:'GPT'}]},
 ];
 const IS_ANDROID = /Android/i.test(navigator.userAgent);
 const IN_BRAVE = !!(navigator.brave && typeof navigator.brave.isBrave === 'function'); // le tableau de bord tourne déjà dans Brave
@@ -1184,7 +1191,9 @@ const APP_KEYS = ['music', 'alexa', 'tapo', 'mi'];
 // Affichage réglé tuile par tuile, sur chaque appareil. Sans réglage : tuiles d'applications visibles sur Fire / Fully Kiosk, cases « En bref » visibles partout.
 function vis(k){
   if (cfg.show && typeof cfg.show[k] === 'boolean') return cfg.show[k];
-  return APP_KEYS.includes(k) ? (CAN_LAUNCH_APPS || !!cfg.alwaysTiles) : true;
+  // une tuile qui ouvre un site web fonctionne partout ; une tuile d'application seulement sur Fire / Fully Kiosk
+  if (APP_KEYS.includes(k)) return /^https?:/.test(cfg.apps[k] || '') || CAN_LAUNCH_APPS || !!cfg.alwaysTiles;
+  return true;
 }
 function renderTiles(){
   document.querySelectorAll('.apps .tile').forEach(t => { t.hidden = !cfg.apps[t.dataset.app] || !vis(t.dataset.app); });
@@ -1194,6 +1203,7 @@ function renderTiles(){
 }
 function openApp(key){
   const url = cfg.apps[key]; if (!url) return;
+  if (/^https?:/.test(url)){ window.open(url, '_blank'); return; }   // site web : nouvel onglet du navigateur
   const m = url.match(/package=([\w.]+)/);
   if (m && window.fully && typeof fully.startApplication === 'function'){ try { fully.startApplication(m[1]); return; } catch (e) {} }
   window.location.href = url;
