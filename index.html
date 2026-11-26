@@ -244,6 +244,60 @@
   .mclear{margin-top:8px;align-self:flex-start;padding:9px 14px;border-radius:10px;background:var(--card2);font-size:14px;color:var(--muted)}
   @media (max-width:760px){ #p-memos{grid-template-columns:1fr} }
 
+  /* Mer & air (onglet fusionné) : la page défile */
+  #p-sea{grid-template-columns:1fr 1fr;grid-auto-rows:max-content;align-content:start;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #p-sea .card{overflow:visible;min-height:auto}
+
+  /* Outils : minuteurs, chronomètre, alarmes */
+  #p-tools{grid-template-columns:1fr 1fr 1fr;align-content:stretch}
+  #p-tools .card{overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+  .presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+  .presets button,.tbtn{background:var(--card2);border-radius:10px;padding:10px 4px;font-size:15px;font-weight:600}
+  .tbtn.primary{background:var(--accent);color:#fff}
+  .tbtn.red{background:rgba(229,72,77,.2);color:var(--bad)}
+  .trow{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+  .trow input{min-width:0;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:16px}
+  .tmr{background:var(--card2);border-radius:12px;padding:10px 12px;margin-bottom:6px}
+  .tmr .top{display:flex;align-items:center;gap:8px}
+  .tmr .lb{flex:1;font-size:14px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tmr .rem{font-size:30px;font-weight:300;font-variant-numeric:tabular-nums}
+  .tmr.paused .rem{color:var(--muted)}
+  .tmr .bar{height:5px;background:var(--bg);border-radius:3px;margin-top:6px;overflow:hidden}
+  .tmr .bar i{display:block;height:100%;background:var(--accent)}
+  .tmr button{font-size:20px;padding:4px 8px;border-radius:8px;background:var(--bg)}
+  .chrono{font-size:54px;font-weight:200;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0 10px}
+  .cbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+  .laps{font-size:15px;font-variant-numeric:tabular-nums}
+  .laps div{display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px solid var(--line)}
+  .laps span{color:var(--muted)}
+  .adays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px}
+  .adays button{background:var(--card2);border-radius:8px;padding:8px 0;font-size:14px;font-weight:700;color:var(--muted)}
+  .adays button.on{background:var(--accent);color:#fff}
+  .alm{display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:12px;padding:10px 12px;margin-bottom:6px}
+  .alm .tm2{font-size:28px;font-weight:300;font-variant-numeric:tabular-nums}
+  .alm .info{flex:1;min-width:0;font-size:13px;color:var(--muted)}
+  .alm .info b{display:block;color:var(--txt);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .alm.off{opacity:.45}
+  .sw{width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:0 0 auto}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}
+  .sw.on{background:var(--good)} .sw.on::after{left:21px}
+  .alm .rm2{font-size:18px;color:var(--muted);padding:4px 6px}
+  .hdt{font-size:13px;color:var(--accent);font-weight:600;margin-top:2px;white-space:nowrap}
+  .hdt:empty{display:none}
+  #ring{position:fixed;top:0;right:0;bottom:0;left:0;z-index:80;background:rgba(5,7,12,.96);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+  #ring.on{display:flex}
+  #ring .ic{font-size:90px;animation:shake .5s infinite alternate}
+  @keyframes shake{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+  #ring .t1{font-size:30px;font-weight:700;margin-top:10px}
+  #ring .t2{font-size:22px;color:var(--muted);margin-top:6px}
+  #ring .rb{display:flex;gap:14px;margin-top:28px}
+  #ring .rb button{padding:18px 30px;border-radius:18px;font-size:22px;font-weight:700;background:var(--card2)}
+  #ring .rb .stop{background:var(--bad);color:#fff}
+  .mitem .ed{font-size:16px;color:var(--muted);padding:4px 6px;flex:0 0 auto}
+  .mitem input.edit{flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:2px solid var(--accent);background:var(--bg);color:var(--txt);font-size:17px}
+  @media (max-width:760px){ #p-sea,#p-tools{grid-template-columns:1fr} #p-tools .card{overflow:visible} }
+  @media (orientation:portrait) and (min-width:761px){ #p-tools{grid-template-columns:1fr 1fr} }
+
   /* Jarvis */
   #jv{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(200px);width:min(640px,92vw);z-index:45;
     background:#0d1526;border:2px solid var(--accent);border-radius:20px;padding:16px 18px;transition:transform .25s;box-shadow:0 10px 40px rgba(0,0,0,.6)}
@@ -473,16 +527,17 @@
     <div>
       <div class="clock" id="clock">--:--</div>
       <div class="date" id="date"></div>
+      <div class="hdt" id="hdTimer"></div>
     </div>
     <nav class="tabs" id="tabs">
       <button class="tab active" data-tab="home">🏠<span class="tl"> Accueil</span></button>
-      <button class="tab" data-tab="sea">🌊<span class="tl"> Mer</span></button>
-      <button class="tab" data-tab="health">🌿<span class="tl"> Santé</span></button>
+      <button class="tab" data-tab="sea">🌊<span class="tl"> Mer &amp; air</span></button>
       <button class="tab" data-tab="links">🔗<span class="tl"> Raccourcis</span></button>
       <button class="tab" data-tab="agenda">📅<span class="tl"> Agenda</span></button>
       <button class="tab" data-tab="radios">📻<span class="tl"> Radios</span></button>
       <button class="tab" data-tab="bus">🚌<span class="tl"> Bus</span></button>
       <button class="tab" data-tab="memos">📝<span class="tl"> Mémos</span></button>
+      <button class="tab" data-tab="tools">⏱️<span class="tl"> Outils</span></button>
     </nav>
     <div class="hd-right">
       <button class="icon-btn mic" id="micBtn" title="Jarvis : parler">🎙️</button>
@@ -528,16 +583,36 @@
     </div>
   </main>
 
-  <!-- ===== Mer ===== -->
+  <!-- ===== Mer & air (onglet fusionné) ===== -->
   <main class="page" id="p-sea">
     <section class="card" id="seaNow"><h2>Mer</h2><div class="empty">Chargement…</div></section>
     <section class="card" id="seaTide"><h2>Marées</h2><div class="empty">Chargement…</div></section>
-  </main>
-
-  <!-- ===== Santé ===== -->
-  <main class="page" id="p-health">
     <section class="card" id="airCard"><h2>Qualité de l'air</h2><div class="empty">Chargement…</div></section>
     <section class="card" id="pollenCard"><h2>Pollens</h2><div class="empty">Chargement…</div></section>
+  </main>
+
+  <!-- ===== Outils : minuteurs, chronomètre, alarmes ===== -->
+  <main class="page" id="p-tools">
+    <section class="card"><h2>⏲️ Minuteurs</h2>
+      <div class="presets" id="tPresets"></div>
+      <div class="trow"><input id="tMin" type="number" min="0" max="999" placeholder="min" style="width:70px">
+        <input id="tSec" type="number" min="0" max="59" placeholder="s" style="width:60px">
+        <input id="tLabel" placeholder="Nom (pâtes…)" maxlength="40" style="flex:1">
+        <button class="tbtn primary" id="tStart" style="padding:10px 12px">▶</button></div>
+      <div id="tList"></div>
+    </section>
+    <section class="card"><h2>⏱️ Chronomètre</h2>
+      <div class="chrono" id="cDisp">00:00,0</div>
+      <div class="cbtns"><button class="tbtn primary" id="cGoBtn">Démarrer</button><button class="tbtn" id="cLapBtn">Tour</button><button class="tbtn red" id="cResetBtn">Remise à zéro</button></div>
+      <div class="laps" id="cLaps"></div>
+    </section>
+    <section class="card"><h2>⏰ Alarmes</h2>
+      <div class="trow"><input id="aTime" type="time" value="07:00" style="width:120px"><input id="aLabel" placeholder="Nom (réveil…)" maxlength="40" style="flex:1"></div>
+      <div class="adays" id="aDays"></div>
+      <button class="tbtn primary" id="aAdd" style="margin-bottom:10px">＋ Ajouter l'alarme</button>
+      <div id="aList"></div>
+      <p class="note">Les alarmes et minuteurs sonnent seulement si le tableau de bord est ouvert et l'écran allumé : une page web ne peut pas réveiller un appareil en veille. Pour un vrai réveil, utilisez aussi l'horloge du téléphone.</p>
+    </section>
   </main>
 
   <!-- ===== Raccourcis ===== -->
@@ -681,6 +756,10 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
+<!-- ===== Sonnerie (minuteur, alarme) ===== -->
+<div id="ring"><div class="ic" id="rIc">⏰</div><div class="t1" id="rT1"></div><div class="t2" id="rT2"></div>
+  <div class="rb"><button class="stop" id="rStop">Arrêter</button><button id="rMore"></button></div></div>
 
 <!-- ===== Jarvis ===== -->
 <div id="jv"><div class="who"><i class="pulse"></i>🤖 Jarvis</div><div class="heard" id="jvHeard"></div><div class="answer" id="jvAnswer"></div></div>
@@ -1033,13 +1112,13 @@ function renderBrief(){
   items.push({k:'tide', tab:'sea', l: nt ? (nt.type === 'high' ? '⬆️ Marée' : '⬇️ Marée') : '🌊 Marée', v: nt ? hm(new Date(nt.t*1000)) : '–',
     s: nt ? (nt.type === 'high' ? 'Pleine mer' : 'Basse mer') : ''});
   const aq = S.air && S.air.current, ai = aqiInfo(aq ? aq.european_aqi : null);
-  items.push({k:'air', tab:'health', l:"🌬️ Air", v: `<i class="dot" style="background:${ai[1]}"></i>${ai[0]}`, s: aq && aq.european_aqi != null ? 'Indice ' + R(aq.european_aqi) : ''});
+  items.push({k:'air', tab:'sea', l:"🌬️ Air", v: `<i class="dot" style="background:${ai[1]}"></i>${ai[0]}`, s: aq && aq.european_aqi != null ? 'Indice ' + R(aq.european_aqi) : ''});
   let pol = '–', ps = '';
   if (S.pollen){
     const top = S.pollen.filter(r => r.max != null).sort((a, b) => b.max - a.max)[0];
     if (top){ pol = `<i class="dot" style="background:${top.info[2]}"></i>${top.max < 1 ? 'Aucun' : top.info[0]}`; ps = top.max < 1 ? 'Hors saison' : top.name; }
   }
-  items.push({k:'pollen', tab:'health', l:'🌿 Pollens', v: pol, s: ps});
+  items.push({k:'pollen', tab:'sea', l:'🌿 Pollens', v: pol, s: ps});
   const shown = items.filter(i => vis(i.k));
   $('#brief').style.display = shown.length ? '' : 'none';
   $('#brief').classList.toggle('n5', shown.length >= 5);
@@ -1502,6 +1581,7 @@ async function memoCall(p){
   else if (p.memo === 'toggle') items.forEach(i => { if (i.id === p.id) i.d = !i.d; });
   else if (p.memo === 'del') items = items.filter(i => i.id !== p.id);
   else if (p.memo === 'clear') items = items.filter(i => !(i.l === list && i.d));
+  else if (p.memo === 'edit' && p.text) items.forEach(i => { if (i.id === p.id) i.t = String(p.text).trim().slice(0, 200); });
   if (p.memo !== 'list'){ try { localStorage.setItem(MEMO_KEY, JSON.stringify(items)); } catch (e) { throw new Error('mémoire du navigateur pleine'); } }
   return items;
 }
@@ -1523,8 +1603,8 @@ function renderMemos(){
     if (!S.memos){ box.innerHTML = `<div class="${S.memoErr ? 'err' : 'empty'}">${S.memoErr ? esc(S.memoErr) : 'Chargement…'}</div>`; return; }
     const items = S.memos.filter(i => i.l === list).sort((a, b) => (a.d - b.d) || (a.at || 0) - (b.at || 0));
     box.innerHTML = items.length ? items.map(i => `<div class="mitem${i.d ? ' done' : ''}" data-id="${esc(i.id)}">
-      <button class="ck" data-act="toggle">${i.d ? '✓' : ''}</button><span class="tx">${esc(i.t)}</span>
-      <button class="rm" data-act="del" title="Supprimer">✕</button></div>`).join('')
+      <button class="ck" data-act="toggle">${i.d ? '✓' : ''}</button><span class="tx" data-act="edit">${esc(i.t)}</span>
+      <button class="ed" data-act="edit" title="Modifier">✏️</button><button class="rm" data-act="del" title="Supprimer">✕</button></div>`).join('')
       : `<div class="empty">${list === 'courses' ? 'Liste vide' : 'Aucun mémo'}</div>`;
   });
   document.querySelectorAll('.mupd').forEach(x => { x.textContent = 'sur cet appareil'; });
@@ -1538,9 +1618,27 @@ document.querySelectorAll('.mform').forEach(f => f.addEventListener('submit', e 
   const b = e.target.closest('[data-act]'); if (!b) return;
   const id = b.closest('.mitem').dataset.id, act = b.dataset.act;
   if (id.startsWith('tmp')) return;
+  if (act === 'edit') return editMemo(b.closest('.mitem'), id);
   if (act === 'toggle') memoDo({memo: 'toggle', id}, m => m.forEach(i => { if (i.id === id) i.d = !i.d; }));
   else memoDo({memo: 'del', id}, m => m.splice(m.findIndex(i => i.id === id), 1));
 }));
+// Modification d'un élément : le texte devient un champ ; Entrée ou toucher ailleurs = enregistrer, Échap = annuler.
+function editMemo(row, id){
+  if (row.querySelector('input.edit')) return;
+  const it = (S.memos || []).find(i => i.id === id); if (!it) return;
+  const tx = row.querySelector('.tx'), inp = document.createElement('input');
+  inp.className = 'edit'; inp.value = it.t; inp.maxLength = 200; inp.setAttribute('enterkeyhint', 'done');
+  tx.replaceWith(inp); row.querySelector('.ed').textContent = '✔️';
+  inp.focus(); try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) {}
+  let done = false;
+  const finish = save => {
+    if (done) return; done = true;
+    const v = inp.value.trim();
+    if (save && v && v !== it.t) memoDo({memo: 'edit', id, text: v}); else renderMemos();
+  };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); finish(true); } else if (e.key === 'Escape') finish(false); });
+  inp.addEventListener('blur', () => finish(true));
+}
 document.querySelectorAll('[data-clear]').forEach(b => b.addEventListener('click', () => {
   const list = b.dataset.clear; memoDo({memo: 'clear', list}, m => { for (let i = m.length - 1; i >= 0; i--) if (m[i].l === list && m[i].d) m.splice(i, 1); });
 }));
@@ -1606,7 +1704,7 @@ function findStation(t){
   });
   return best;
 }
-const TABS = {accueil:'home', maison:'home', mer:'sea', maree:'sea', marees:'sea', sante:'health', air:'health', pollen:'health', pollens:'health',
+const TABS = {accueil:'home', maison:'home', mer:'sea', maree:'sea', marees:'sea', sante:'sea', air:'sea', pollen:'sea', pollens:'sea', outils:'tools', minuteur:'tools', minuteurs:'tools', chrono:'tools', chronometre:'tools', alarme:'tools', alarmes:'tools', reveil:'tools',
   raccourci:'links', raccourcis:'links', liens:'links', agenda:'agenda', calendrier:'agenda', radio:'radios', radios:'radios', bus:'bus', memo:'memos', memos:'memos', notes:'memos', courses:'memos'};
 function weatherSpeech(tomorrow){
   if (!S.weather) return "Je n'ai pas encore la météo.";
@@ -1650,6 +1748,31 @@ function handleCommand(raw){
   const heard = '« ' + raw + ' »';
   let t = norm(raw).replace(/^(jarvis|ok jarvis|dis jarvis)\s*/, '');
   const has = re => re.test(t);
+  // --- sonnerie en cours : « stop »
+  if (ringing && has(/\b(stop|arrete|coupe|ok|c est bon|silence)\b/)){ stopRing(); return jvShow(heard, 'Sonnerie arrêtée.', false); }
+  // --- minuteur : « minuteur 10 minutes pour les pâtes »
+  if (has(/\b(minuteur|minuterie|timer|compte a rebours)\b/)){
+    const d = parseDuration(t);
+    if (!d) return say('Pour combien de temps ? Par exemple : minuteur 10 minutes.', heard);
+    const lm = raw.match(/\bpour\s+(.+)$/i);
+    const said = lm ? lm[1].trim() : '', label = said.replace(/^(les|le|la|l')\s*/i, '');
+    addTimer(d, label ? label.charAt(0).toUpperCase() + label.slice(1) : '');
+    return say(`Minuteur de ${spokenDuration(d)}${said ? ' pour ' + said : ''} lancé.`, heard);
+  }
+  // --- alarme : « réveille-moi à 7h30 », « alarme à 18 heures »
+  if (has(/\b(reveil|reveille|alarme|sonne)\b/) && has(/\d/)){
+    const am = t.match(/(\d{1,2})\s*(?:h|heures?|:)\s*(\d{1,2})?/);
+    if (!am || +am[1] > 23) return say("À quelle heure ? Par exemple : réveille-moi à 7 heures 30.", heard);
+    const hh = pad(+am[1]), mm = pad(+(am[2] || 0));
+    addAlarm(hh + ':' + mm, has(/\breveil|reveille\b/) ? 'Réveil' : 'Alarme', []);
+    return say(`Alarme réglée à ${+am[1]} heures${+mm ? ' ' + +mm : ''}. Gardez le tableau de bord ouvert et l'écran allumé.`, heard);
+  }
+  // --- chronomètre
+  if (has(/\bchrono|chronometre\b/)){
+    if (has(/\b(zero|reinitialise|efface|remets)\b/)){ chronoReset(); return say('Chronomètre remis à zéro.', heard); }
+    if (has(/\b(arrete|stop|pause)\b/)){ chronoPause(); return say('Chronomètre arrêté à ' + spokenDuration(Math.max(1000, Math.round(chronoMs() / 1000) * 1000)) + '.', heard); }
+    chronoStart(); return say('Chronomètre lancé.', heard);
+  }
   // --- mémos : « ajoute du pain à la liste de courses », « note appeler le garage »
   let m = raw.match(/^\s*(?:jarvis[\s,]*)?(ajoute|rajoute|note|mets?)\s+(.+?)\s*(?:(?:à|a|aux|au|dans|sur)\s+(?:la\s+|les\s+|mes\s+)?(liste de courses|liste des courses|courses|liste|mémos?|memos?|notes?))\s*$/i);
   // « ajoute du lait » (sans préciser) : liste de courses
@@ -1705,6 +1828,149 @@ function handleCommand(raw){
   if (has(/^(bonjour|salut|hello|coucou)\b/)) return say((new Date().getHours() < 18 ? 'Bonjour !' : 'Bonsoir !') + ' ' + weatherSpeech(false), heard);
   say("Je n'ai pas compris. Essayez : « mets FIP », « prochain bus », « météo », « agenda de demain » ou « ajoute du pain à la liste de courses ».", heard);
 }
+
+/* ================= Outils : minuteurs, chronomètre, alarmes ================= */
+// Tout est gardé sur l'appareil (fonctionne aussi après un rechargement de la page).
+const TOOLS_KEY = 'maison-outils';
+let T = {timers: [], alarms: [], chrono: {start: null, acc: 0, laps: []}};
+try { T = Object.assign(T, JSON.parse(localStorage.getItem(TOOLS_KEY) || '{}')); } catch (e) {}
+const saveTools = () => { try { localStorage.setItem(TOOLS_KEY, JSON.stringify(T)); } catch (e) {} };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const mmss = ms => { const s = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+  return (h ? h + ':' + pad(m) : m) + ':' + pad(s % 60); };
+function spokenDuration(ms){
+  const s = Math.round(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60, p = [];
+  if (h) p.push(h + (h > 1 ? ' heures' : ' heure')); if (m) p.push(m + (m > 1 ? ' minutes' : ' minute')); if (sec) p.push(sec + (sec > 1 ? ' secondes' : ' seconde'));
+  return p.join(' ') || '0 seconde';
+}
+// « 10 minutes », « 1 h 30 », « 90 secondes », « une demi-heure », « 2 min 30 »
+function parseDuration(t){
+  t = ' ' + t.replace(/\bune?\b/g, '1').replace(/\bdeux\b/g, '2').replace(/\btrois\b/g, '3').replace(/\bcinq\b/g, '5').replace(/\bdix\b/g, '10').replace(/\bquinze\b/g, '15').replace(/\bvingt\b/g, '20').replace(/\btrente\b/g, '30') + ' ';
+  if (/demi heure/.test(t)) return 30 * 60000;
+  if (/quart d heure/.test(t)) return 15 * 60000;
+  let ms = 0, m;
+  if ((m = t.match(/(\d+)\s*(?:h|heures?)\b\s*(\d+)?/))) ms += +m[1] * 3600000 + (m[2] ? +m[2] * 60000 : 0);
+  if ((m = t.match(/(\d+)\s*(?:min|mn|minutes?)\b\s*(\d+)?/))) ms += +m[1] * 60000 + (m[2] ? +m[2] * 1000 : 0);
+  if ((m = t.match(/(\d+)\s*(?:s|sec|secondes?)\b/)) && !/(\d+)\s*(?:min|minutes?)\s*\d+\s*s/.test(t)) ms += +m[1] * 1000;
+  return ms > 0 && ms <= 24 * 3600000 ? ms : 0;
+}
+// --- minuteurs
+function addTimer(ms, label){ T.timers.push({id: uid(), label: label || '', dur: ms, end: Date.now() + ms, paused: null}); saveTools(); renderTools(); }
+const PRESETS = [1, 3, 5, 10, 15, 20, 30, 60];
+$('#tPresets').innerHTML = PRESETS.map(m => `<button data-min="${m}">${m < 60 ? m + ' min' : '1 h'}</button>`).join('');
+$('#tPresets').addEventListener('click', e => { const b = e.target.closest('[data-min]'); if (b) addTimer(+b.dataset.min * 60000, $('#tLabel').value.trim()); $('#tLabel').value = ''; });
+$('#tStart').onclick = () => {
+  const ms = ((+$('#tMin').value || 0) * 60 + (+$('#tSec').value || 0)) * 1000;
+  if (!ms) return toast('Indiquez une durée');
+  addTimer(ms, $('#tLabel').value.trim()); $('#tMin').value = $('#tSec').value = $('#tLabel').value = '';
+};
+$('#tList').addEventListener('click', e => {
+  const b = e.target.closest('[data-t]'); if (!b) return;
+  const tm = T.timers.find(x => x.id === b.closest('.tmr').dataset.id); if (!tm) return;
+  if (b.dataset.t === 'del') T.timers = T.timers.filter(x => x !== tm);
+  else if (tm.paused != null){ tm.end = Date.now() + tm.paused; tm.paused = null; }
+  else { tm.paused = Math.max(0, tm.end - Date.now()); }
+  saveTools(); renderTools();
+});
+// --- chronomètre
+const chronoMs = () => T.chrono.acc + (T.chrono.start ? Date.now() - T.chrono.start : 0);
+const chronoText = (ms, spoken) => { const s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60);
+  if (spoken) return (h ? h + ' heures ' : '') + (m % 60) + ' minutes ' + (s % 60) + ' secondes';
+  return (h ? h + ':' : '') + pad(m % 60) + ':' + pad(s % 60) + ',' + Math.floor(ms % 1000 / 100); };
+function chronoStart(){ if (!T.chrono.start){ T.chrono.start = Date.now(); saveTools(); renderTools(); } }
+function chronoPause(){ if (T.chrono.start){ T.chrono.acc += Date.now() - T.chrono.start; T.chrono.start = null; saveTools(); renderTools(); } }
+function chronoReset(){ T.chrono = {start: null, acc: 0, laps: []}; saveTools(); renderTools(); }
+$('#cGoBtn').onclick = () => T.chrono.start ? chronoPause() : chronoStart();
+$('#cLapBtn').onclick = () => { const ms = chronoMs(); if (ms){ T.chrono.laps.unshift(ms); T.chrono.laps = T.chrono.laps.slice(0, 50); saveTools(); renderTools(); } };
+$('#cResetBtn').onclick = chronoReset;
+// --- alarmes
+const DAYN = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];   // 1 = lundi … 7 = dimanche
+let aDaysSel = [];
+$('#aDays').innerHTML = DAYN.map((d, i) => `<button data-d="${i + 1}">${d}</button>`).join('');
+$('#aDays').addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (!b) return;
+  const d = +b.dataset.d; aDaysSel = aDaysSel.includes(d) ? aDaysSel.filter(x => x !== d) : aDaysSel.concat(d); b.classList.toggle('on'); });
+function addAlarm(time, label, days){ T.alarms.push({id: uid(), time, label: label || 'Alarme', days: days.slice().sort(), on: true, last: ''}); saveTools(); renderTools(); }
+$('#aAdd').onclick = () => {
+  if (!$('#aTime').value) return toast('Choisissez une heure');
+  addAlarm($('#aTime').value, $('#aLabel').value.trim(), aDaysSel);
+  toast('Alarme ajoutée'); $('#aLabel').value = ''; aDaysSel = []; document.querySelectorAll('#aDays button').forEach(b => b.classList.remove('on'));
+};
+$('#aList').addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const al = T.alarms.find(x => x.id === b.closest('.alm').dataset.id); if (!al) return;
+  if (b.dataset.a === 'del') T.alarms = T.alarms.filter(x => x !== al); else al.on = !al.on;
+  saveTools(); renderTools();
+});
+const daysText = d => !d.length ? 'Une fois' : d.length === 7 ? 'Tous les jours' : d.join() === '1,2,3,4,5' ? 'Du lundi au vendredi' : d.join() === '6,7' ? 'Le week-end' : d.map(x => ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'][x - 1]).join(' ');
+// --- affichage
+function renderTools(){
+  const now = Date.now();
+  $('#tList').innerHTML = T.timers.length ? T.timers.map(tm => {
+    const rem = tm.paused != null ? tm.paused : tm.end - now, pc = Math.max(0, Math.min(100, 100 - rem / tm.dur * 100));
+    return `<div class="tmr${tm.paused != null ? ' paused' : ''}" data-id="${tm.id}"><div class="top"><span class="rem">${mmss(rem)}</span>
+      <span class="lb">${esc(tm.label || spokenDuration(tm.dur))}</span>
+      <button data-t="pp">${tm.paused != null ? '▶' : '⏸'}</button><button data-t="del">✕</button></div>
+      <div class="bar"><i style="width:${pc}%"></i></div></div>`;
+  }).join('') : '<div class="empty">Aucun minuteur en cours</div>';
+  $('#cDisp').textContent = chronoText(chronoMs());
+  $('#cGoBtn').textContent = T.chrono.start ? 'Pause' : (T.chrono.acc ? 'Reprendre' : 'Démarrer');
+  const laps = T.chrono.laps;
+  $('#cLaps').innerHTML = laps.map((ms, i) => `<div><span>Tour ${laps.length - i}</span><b>${chronoText(ms)}</b><span>+${chronoText(ms - (laps[i + 1] || 0))}</span></div>`).join('');
+  $('#aList').innerHTML = T.alarms.length ? T.alarms.slice().sort((a, b) => a.time < b.time ? -1 : 1).map(al => `<div class="alm${al.on ? '' : ' off'}" data-id="${al.id}">
+    <span class="tm2">${al.time}</span><span class="info"><b>${esc(al.label)}</b>${daysText(al.days)}</span>
+    <button class="sw${al.on ? ' on' : ''}" data-a="sw" title="Activer / désactiver"></button><button class="rm2" data-a="del">✕</button></div>`).join('')
+    : '<div class="empty">Aucune alarme</div>';
+}
+// Rappel discret dans l'en-tête : minuteur le plus proche ou chrono en marche
+function renderHdTimer(){
+  const run = T.timers.filter(x => x.paused == null).sort((a, b) => a.end - b.end)[0];
+  $('#hdTimer').textContent = run ? '⏲️ ' + mmss(run.end - Date.now()) + (run.label ? ' · ' + run.label : '') : T.chrono.start ? '⏱️ ' + chronoText(chronoMs()).replace(/,\d$/, '') : '';
+}
+// --- sonnerie (son synthétisé, sans fichier)
+let actx = null, ringing = null, ringBeep = null;
+const unlockAudio = () => { try { const AC = window.AudioContext || window.webkitAudioContext; if (!actx && AC) actx = new AC(); if (actx && actx.state === 'suspended') actx.resume(); } catch (e) {} };
+document.addEventListener('pointerdown', unlockAudio, {passive: true}); document.addEventListener('touchstart', unlockAudio, {passive: true});
+function beep(){
+  unlockAudio(); if (!actx) return;
+  [0, .25, .5].forEach(dt => { const o = actx.createOscillator(), g = actx.createGain(); o.type = 'square'; o.frequency.value = 880;
+    g.gain.setValueAtTime(.0001, actx.currentTime + dt); g.gain.exponentialRampToValueAtTime(.25, actx.currentTime + dt + .02); g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + dt + .18);
+    o.connect(g); g.connect(actx.destination); o.start(actx.currentTime + dt); o.stop(actx.currentTime + dt + .2); });
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+}
+function startRing(kind, label, ref){
+  if (typeof stopFrame === 'function' && frameOn) stopFrame();
+  ringing = {kind, label, ref, since: Date.now()};
+  $('#rIc').textContent = kind === 'timer' ? '⏲️' : '⏰';
+  $('#rT1').textContent = kind === 'timer' ? 'Minuteur terminé' : 'Alarme ' + (ref && ref.time ? ref.time : '');
+  $('#rT2').textContent = label || '';
+  $('#rMore').textContent = kind === 'timer' ? '+1 min' : 'Répéter dans 5 min';
+  $('#ring').classList.add('on');
+  if (P.audio) P.audio.volume = 0.2;
+  clearInterval(ringBeep); beep(); ringBeep = setInterval(() => { beep(); if (Date.now() - ringing.since > 3 * 60000) stopRing(); }, 1500);
+  if (cfg.voice !== false && 'speechSynthesis' in window) setTimeout(() => { if (ringing) { const u = new SpeechSynthesisUtterance((kind === 'timer' ? 'Minuteur terminé' : 'Alarme') + (label ? ' : ' + label : '')); u.lang = 'fr-FR'; if (frVoice) u.voice = frVoice; speechSynthesis.speak(u); } }, 1800);
+}
+function stopRing(){ clearInterval(ringBeep); ringing = null; $('#ring').classList.remove('on'); if (P.audio) P.audio.volume = 1; lastAct = Date.now(); }
+$('#rStop').onclick = stopRing;
+$('#rMore').onclick = () => { const r = ringing; stopRing(); if (!r) return;
+  if (r.kind === 'timer') addTimer(60000, r.label); else addTimer(5 * 60000, '⏰ ' + (r.label || 'Alarme')); };
+// --- vérification chaque demi-seconde
+setInterval(() => {
+  const now = Date.now(), d = new Date(), hhmm = pad(d.getHours()) + ':' + pad(d.getMinutes()), dayKey = d.toDateString() + ' ' + hhmm;
+  const dow = d.getDay() || 7;
+  T.timers.filter(tm => tm.paused == null && tm.end <= now).forEach(tm => {
+    T.timers = T.timers.filter(x => x !== tm); saveTools();
+    if (!ringing) startRing('timer', tm.label || spokenDuration(tm.dur), tm);
+  });
+  T.alarms.forEach(al => {
+    if (!al.on || al.time !== hhmm || al.last === dayKey) return;
+    if (al.days.length && !al.days.includes(dow)) return;
+    al.last = dayKey; if (!al.days.length) al.on = false; saveTools();
+    if (!ringing) startRing('alarm', al.label, al);
+  });
+  if ($('#p-tools').classList.contains('active')) renderTools(); else if (T.chrono.start || T.timers.length) {}
+  renderHdTimer();
+}, 500);
+renderTools();
 
 /* ================= Cadre photo la nuit ================= */
 let lastAct = Date.now(), frameOn = false, frameTimer = null, frameFlip = false, lastObjUrl = null;
