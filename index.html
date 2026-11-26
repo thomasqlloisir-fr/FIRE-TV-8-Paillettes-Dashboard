@@ -26,6 +26,8 @@
 
   .app{height:100%;display:grid;gap:12px;grid-template-rows:auto 1fr}
   .page{display:none;min-height:0;gap:12px;grid-template-columns:1.05fr 1fr}
+  .app{grid-template-columns:minmax(0,1fr)}
+  .page{min-width:0}
   .page.active{display:grid}
   .col{display:grid;gap:12px;min-height:0;grid-auto-rows:minmax(0,auto)}
   .card{background:var(--card);border-radius:16px;padding:12px 14px;border:1px solid var(--line);min-height:0;overflow:hidden}
@@ -249,7 +251,11 @@
   #p-sea .card{overflow:visible;min-height:auto}
 
   /* Outils : minuteurs, chronomètre, alarmes */
-  #p-tools{grid-template-columns:1fr 1fr 1fr;align-content:stretch}
+  #p-tools{grid-template-columns:repeat(3,minmax(0,1fr));align-content:stretch}
+  #p-tools .card{min-width:0}
+  #p-tools .trow{flex-wrap:wrap}
+  #p-tools .trow input[type=number]{width:64px;flex:0 0 64px}
+  #p-tools .trow input:not([type=number]){flex:1 1 120px}
   #p-tools .card{overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
   .presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
   .presets button,.tbtn{background:var(--card2);border-radius:10px;padding:10px 4px;font-size:15px;font-weight:600}
@@ -295,13 +301,15 @@
   #ring .rb .stop{background:var(--bad);color:#fff}
   .mitem .ed{font-size:16px;color:var(--muted);padding:4px 6px;flex:0 0 auto}
   .mitem input.edit{flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:2px solid var(--accent);background:var(--bg);color:var(--txt);font-size:17px}
-  @media (max-width:760px){ #p-sea,#p-tools{grid-template-columns:1fr} #p-tools .card{overflow:visible} }
+  @media (max-width:760px){ #p-sea,#p-tools{grid-template-columns:minmax(0,1fr)} #p-tools .card{overflow:visible} }
+  @media (max-height:480px) and (min-width:700px){ #p-tools{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media (orientation:portrait) and (min-width:761px){ #p-tools{grid-template-columns:1fr 1fr} }
 
   /* Jarvis */
   #jv{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(200px);width:min(640px,92vw);z-index:45;
     background:#0d1526;border:2px solid var(--accent);border-radius:20px;padding:16px 18px;transition:transform .25s;box-shadow:0 10px 40px rgba(0,0,0,.6)}
-  #jv.show{transform:translateX(-50%) translateY(0)}
+  #jv{visibility:hidden}
+  #jv.show{transform:translateX(-50%) translateY(0);visibility:visible}
   #jv .who{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;font-weight:700;display:flex;align-items:center;gap:8px}
   #jv .heard{font-size:15px;color:var(--muted);margin-top:6px;font-style:italic;min-height:18px}
   #jv .answer{font-size:19px;margin-top:6px;line-height:1.35}
@@ -595,9 +603,9 @@
   <main class="page" id="p-tools">
     <section class="card"><h2>⏲️ Minuteurs</h2>
       <div class="presets" id="tPresets"></div>
-      <div class="trow"><input id="tMin" type="number" min="0" max="999" placeholder="min" style="width:70px">
-        <input id="tSec" type="number" min="0" max="59" placeholder="s" style="width:60px">
-        <input id="tLabel" placeholder="Nom (pâtes…)" maxlength="40" style="flex:1">
+      <div class="trow"><input id="tMin" type="number" min="0" max="999" placeholder="min">
+        <input id="tSec" type="number" min="0" max="59" placeholder="s">
+        <input id="tLabel" placeholder="Nom (pâtes…)" maxlength="40">
         <button class="tbtn primary" id="tStart" style="padding:10px 12px">▶</button></div>
       <div id="tList"></div>
     </section>
@@ -607,7 +615,7 @@
       <div class="laps" id="cLaps"></div>
     </section>
     <section class="card"><h2>⏰ Alarmes</h2>
-      <div class="trow"><input id="aTime" type="time" value="07:00" style="width:120px"><input id="aLabel" placeholder="Nom (réveil…)" maxlength="40" style="flex:1"></div>
+      <div class="trow"><input id="aTime" type="time" value="07:00" style="flex:0 0 120px"><input id="aLabel" placeholder="Nom (réveil…)" maxlength="40"></div>
       <div class="adays" id="aDays"></div>
       <button class="tbtn primary" id="aAdd" style="margin-bottom:10px">＋ Ajouter l'alarme</button>
       <div id="aList"></div>
@@ -1915,7 +1923,7 @@ function renderTools(){
   $('#cDisp').textContent = chronoText(chronoMs());
   $('#cGoBtn').textContent = T.chrono.start ? 'Pause' : (T.chrono.acc ? 'Reprendre' : 'Démarrer');
   const laps = T.chrono.laps;
-  $('#cLaps').innerHTML = laps.map((ms, i) => `<div><span>Tour ${laps.length - i}</span><b>${chronoText(ms)}</b><span>+${chronoText(ms - (laps[i + 1] || 0))}</span></div>`).join('');
+  $('#cLaps').innerHTML = laps.map((ms, i) => `<div><span>Tour ${laps.length - i}</span><b>${chronoText(ms)}</b><span>+${chronoText(Math.max(0, ms - (laps[i + 1] || 0)))}</span></div>`).join('');
   $('#aList').innerHTML = T.alarms.length ? T.alarms.slice().sort((a, b) => a.time < b.time ? -1 : 1).map(al => `<div class="alm${al.on ? '' : ' off'}" data-id="${al.id}">
     <span class="tm2">${al.time}</span><span class="info"><b>${esc(al.label)}</b>${daysText(al.days)}</span>
     <button class="sw${al.on ? ' on' : ''}" data-a="sw" title="Activer / désactiver"></button><button class="rm2" data-a="del">✕</button></div>`).join('')
